@@ -1,24 +1,3 @@
-*.class
-.git
-.gradle
-build
-*.svn
-*~
-target
-*.ipr
-*.iml
-*.iws
-.settings
-.project
-.classpath
-bin
-
-/doc
-*.xml
-.idea/.name
-lib/junit-4.7.jar
-*.jar
-
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output

@@ -827,7 +827,7 @@ public abstract class WebSocketServer extends AbstractWebSocket implements Runna
 	 * This method will be called primarily because of IO or protocol errors.<br>
 	 * If the given exception is an RuntimeException that probably means that you encountered a bug.<br>
 	 * 
-	 * @param conn Can be null if there error does not belong to one specific websocket. For example if the servers port could not be bound.
+	 * @param conn Can be null if there error does not belong to one specific websocket. For org.example if the servers port could not be bound.
 	 * @param ex The exception causing this error
 	 **/
 	public abstract void onError( WebSocket conn, Exception ex );

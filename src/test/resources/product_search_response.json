@@ -1,0 +1,513 @@
+{
+  "type": "productCategorySearchPageWsDTO",
+  "currentQuery": {
+    "query": {
+      "value": ":relevance"
+    },
+    "url": "/search?q=%3Arelevance"
+  },
+  "freeTextSearch": "",
+  "pagination": {
+    "currentPage": 0,
+    "pageSize": 20,
+    "sort": "relevance",
+    "totalPages": 9,
+    "totalResults": 179
+  },
+  "products": [
+    {
+      "availableForPickup": true,
+      "averageRating": 2.4782608695652173,
+      "code": "1298094",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "- Compatible with InfoLITHIUM M series batteries for Camcorders, Cyber-shot and DSLR cameras.<br/>- Quick recharge.<br/>- Includes LCD panel showing battery status.<br/>- Relay type recharges two batteries.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "AC-VQ900AM",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$168.52",
+        "priceType": "BUY",
+        "value": 168.52
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "AC Adaptor charger",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Battery-Chargers/AC-VQ900AM/p/1298094"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.3125,
+      "code": "594471",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "The ACK-E2 AC Adapter Kit contains AC Adapter AC-E2, AC Cable and DR Coupler DR-400.",
+      "manufacturer": "Canon",
+      "multidimensional": false,
+      "name": "AC Power Adapter ACK-E2",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$64.92",
+        "priceType": "BUY",
+        "value": 64.92
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 2,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "AC Power Adapter ACK-E2",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Power-Adapters-%26-Inverters/AC-Power-Adapter-ACK-E2/p/594471"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.5,
+      "code": "325234",
+      "configurable": true,
+      "configuratorType": "TEXTFIELD",
+      "description": "Battery charger for P series InfoLITHIUM camcorders<br/><br/>- Compatible with P Series batteries <br/>- Suitable for charging from mains power supply <br/>- Multi-voltage allows charging worldwide <br/>- Compact design ideal for travel",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "Charger BC-TRP",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$134.95",
+        "priceType": "BUY",
+        "value": 134.95
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "Sony Charger BC-TRP",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Battery-Chargers/Charger-BC-TRP/p/325234"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 2.7,
+      "code": "482105",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "-Lithium-ion cells with no 'Memory Effect'. <br/>-Highly efficient, compact and light-weight. <br/>-Capacity: 11.5Wh, 1,600mAh.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "InfoLITHIUM Battery, NP-FM55H",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$149.69",
+        "priceType": "BUY",
+        "value": 149.69
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "InfoLITHIUM Battery, NP-FM55H",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Rechargeable-Batteries/InfoLITHIUM-Battery%2C-NP-FM55H/p/482105"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 3.6875,
+      "code": "832382",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "With its ability to focus life-size images onto the image sensor, the EF-S 60mm f/2.8 Macro USM offers true macro performance in the EF-S lens series. Having an effective focal length of approximately 96mm in 35mm format, it produces breathtaking close-up results. A minimum focusing distance of just 20cm gets you super close to your subject, filling your frame only with the subject detail you require.",
+      "manufacturer": "Canon",
+      "multidimensional": false,
+      "name": "EF-S 60mm f/2.8 USM Macro",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$466.88",
+        "priceType": "BUY",
+        "value": 466.88
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "EF-S 60mm f/2.8 USM Macro",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-SLR/Camera-Lenses/EF-S-60mm-f-2-8-USM-Macro/p/832382"
+    },
+    {
+      "availableForPickup": false,
+      "averageRating": 4.125,
+      "code": "266899",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "<br/><br/>Enables power supply from an AC outlet to your Cyber-shot.<br/><br/>AC-LS5 can not recharge AA Ni-MH rechargeable batteries inside the Cyber-shot main unit.<br/><br/>Includes an exclusive adapter (DK-2AA) for powering compatible Cyber-shot models using AA-type batteries.<br/><br/>Universal voltage.<br/><br/>W 105 × H 36 × D 56mm.<br/><br/>AC-LS5 is included with some models.<br/><br/>",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "Adapter AC Infolithium f Cybershot",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$86.86",
+        "priceType": "BUY",
+        "value": 86.86
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "AC Power Adaptor",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Power-Adapters-%26-Inverters/Adapter-AC-Infolithium-f-Cybershot/p/266899"
+    },
+    {
+      "availableForPickup": true,
+      "code": "4205436",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "Secure Digital High Capacity cards you can rely on. Kingston Technology's Secure Digital High-Capacity (SDHC) memory cards are fully compliant with the Secure Digital Association 2.00 specification. They are the next high performance generation of SD memory cards designed to meet the storage demands of high-quality digital still and video cameras and other high-resolution image recording devices.",
+      "manufacturer": "Kingston",
+      "multidimensional": false,
+      "name": "32GB SDHC Card",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$333.49",
+        "priceType": "BUY",
+        "value": 333.49
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 2,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "SD High Capacity",
+      "url": "/Open-Catalogue/Data-storage/Flash-Memory/32GB-SDHC-Card/p/4205436"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 3.5,
+      "code": "1934793",
+      "configurable": true,
+      "configuratorType": "TEXTFIELD",
+      "description": "<b>Affordable, intuitive and fun, the PowerShot A480 uses Canon know-how to let everyone take great 10 MP photos. Available in four colours, its compact, lightweight design slips easily into any pocket.</b><br/><br/><b>10.0 Megapixels</b><br/>With a 10 Megapixel sensor, you can capture every scene in vivid detail – ready for printing at sizes as large as A3+, or cropping to perfection without losing the detail necessary for larger prints.<br/><br/><b>Compact and colourful</b><br/>Small and light enough to slip into a pocket, the PowerShot A480 has a classic, stylish design that feels great in the hand. Controlled by a simple button layout, it comes in a choice of four attractive colours.<br/><br/><b>3.3x optical zoom</b><br/>Frame every picture perfectly with a Canon 3.3x optical zoom. In combination with digital zoom, magnification of up to 13x can be achieved.<br/><br/><b>DIGIC III</b><br/>As well as powering Face Detection Technology, Canon’s DIGIC III processor provides fast response times, superb image quality and colour reproduction. DIGIC III also delivers advanced noise reduction – ensuring that images remain sharp and clear.<br/><br/><b>15 shooting modes</b><br/>A selection of shooting modes - including dedicated Kids & Pets and Indoor modes - make it easy to get the right settings for any scene. Simply select the mode you want, and let the camera take care of everything else. <br/><br/><b>1cm Macro shooting</b><br/>A special 1cm Super Macro mode allows you to capture small scale detail from as close as 1cm away.<br/><br/><b>Great people shots</b><br/>A suite of Face Detection technologies detects up to nine faces in a scene and adjusts focus, exposure, flash settings and white balance – for optimal results with natural-looking skin tones. <br/><br/><b>Auto Red-Eye Correction</b><br/>Available in shooting or playback mode, Automatic Red-Eye Correction accurately removes the red-eye effect caused by flash. <br/><br/><b>Motion Detection Technology</b><br/>Motion Detection Technology uses changes in scene information and scene brightness to accurately identify subject motion. The optimal ISO level is then automatically set, to minimise blur and maximise image quality.",
+      "manufacturer": "Canon",
+      "multidimensional": false,
+      "name": "PowerShot A480",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$99.85",
+        "priceType": "BUY",
+        "value": 99.85
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "PowerShot A480 - 10.0 MP, 3.3x optical, DIGIC III, 2.5” LCD, red",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-Compacts/PowerShot-A480/p/1934793"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.764705882352941,
+      "code": "1366053",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "Create it… Store it… Share it, with an ICIDU SDHC Card. Save image, sound and data files on compatible devices such as digital cameras, camcorders and MP3-players.",
+      "manufacturer": "ICIDU",
+      "multidimensional": false,
+      "name": "SD High Capacity Card 8GB",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$20.00",
+        "priceType": "BUY",
+        "value": 20
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "SD High Capacity Card 8GB",
+      "url": "/Open-Catalogue/Data-storage/Flash-Memory/SD-High-Capacity-Card-8GB/p/1366053"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 2.5217391304347827,
+      "code": "2934302",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "- Compact, stylish new dual-tone body design - light and easy to carry for day trips, holidays and weekends away.<br/>- High resolution 10.2 effective megapixel CCD sensor and BIONZ processor for superbly detailed, low noise images with rich tones and vib",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "DSLR-A330 + DT 18 - 55 mm",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$508.88",
+        "priceType": "BUY",
+        "value": 508.88
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "DSLR-A330 + DT 18 - 55 mm - Light, compact, easy-to-use Digital Single Lens Reflex (D-SLR) camera - body only. 10.2 megapixels, SteadyShot INSIDE and Quick AF Live View. HD output, 2.7\"\" tilt LCD and on-screen help guide",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-SLR/DSLR-A330-%2B-DT-18---55-mm/p/2934302"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.5,
+      "code": "1232590",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "- STAMINA super long battery life.<br/>- Lithium-ion cells with no ‘Memory Effect’.<br/>- Highly efficient compact and light-weight.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "NP-FM500H - Rechargeable Battery Pack",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$156.66",
+        "priceType": "BUY",
+        "value": 156.66
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "NP-FM500H - Rechargeable Battery Pack",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Rechargeable-Batteries/NP-FM500H---Rechargeable-Battery-Pack/p/1232590"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.333333333333333,
+      "code": "450848",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "-Lithium Ion Type G battery <br/>-Approx. Capacity: 960mAh , 3.4Wh <br/>-Approx. Weight: 26.8g",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "Rechargeable Battery Pack NP-BG1",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$65.51",
+        "priceType": "BUY",
+        "value": 65.51
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 4,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "NP-BG1 - Rechargeable Battery Pack",
+      "url": "/Open-Catalogue/Components/Power-Supplies/Rechargeable-Batteries/Rechargeable-Battery-Pack-NP-BG1/p/450848"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 2.5416666666666665,
+      "code": "784343",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "<b>Features</b><br/>- Lens construction: 9 elements in 7 groups <br/>- Diagonal angle of view: 12° <br/>- Focus adjustment: Rear focusing system with USM <br/>- Closest focusing distance: 1.5m / 4.9ft <br/>- Filter size: 72mm <br/><br/><b>Telephoto lens boasting high image quality and carrying ease</b><br/>Telephoto lens boasting high image quality and carrying ease. With two UD-glass elements and rear focusing to correct aberrations, image delineation is extremely sharp. Background blur is also natural-looking, as was simulated by Canon. The lens comes with a dedicated, detachable hood.",
+      "manufacturer": "Canon",
+      "multidimensional": false,
+      "name": "EF 200mm f/2.8L II USM",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$818.33",
+        "priceType": "BUY",
+        "value": 818.33
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "EF 200mm f/2.8L II USM",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-SLR/Camera-Lenses/EF-200mm-f-2-8L-II-USM/p/784343"
+    },
+    {
+      "availableForPickup": false,
+      "code": "1978440_red",
+      "configurable": true,
+      "configuratorType": "TEXTFIELD",
+      "description": "<b>Performance that won't weigh you down</b><br/>Enjoy superb quality images, with 10x Optical Zoom, HD movie recording and smart functions in a brilliantly designed package. The perfect partner when you want serious performance in a compact design.<br/><br/><b>Get closer to your subject</b><br/>A high-quality Optical Zoom lens gets closer to the action, letting you fill more of the frame with distant subjects. Unlike digital zoom, you'll get uncompromised image quality at all settings – even high magnifications.<br/><br/><b>Don’t worry about the right settings</b><br/>It can be hard judging the best camera settings to use in tricky situations like twilight portraits and sun-drenched backlit beach scenes. Intelligent Scene Recognition automatically adjusts exposure and other settings, helping you achieve better-looking results with less effort.<br/><br/><b>Beautiful portraits made simple</b><br/>Now it’s easy to capture beautiful, smiling portraits of friends and family. Enhanced Face Detection automatically adjusts camera settings for clear, crisp results with natural skin tones. Smile Shutter fires the shutter automatically when your subject smiles to capture those happy moments.<br/><br/><b>Big, beautiful pictures on your HD TV</b><br/>Why not show off your pictures in more style? Connect your camera to any HD Ready television and enjoy a big, beautiful view of your pictures that everyone can enjoy. If your BRAVIA TV supports PhotoTV HD, you’ll enjoy even incredibly lifelike HD images, packed with detail and vibrant colours.<br/><br/><b>The camera that thinks it’s a camcorder</b><br/>Left your camcorder behind? Don't worry: now you can capture crisp, clear HD movie clips at an incredible 30 frames per second for smooth, clear action. Watch the results on your BRAVIA television: you'll be amazed by the quality, detail and colour.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "DSC-H20 Red",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$558.40",
+        "priceType": "BUY",
+        "value": 558.4
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "DSC-H20, Red, 10.1 Megapixels, 10x Optical Zoom, 3.0\"\" LCD",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-Compacts/DSC-H20/p/1978440_red"
+    },
+    {
+      "availableForPickup": false,
+      "code": "1978440_green",
+      "configurable": true,
+      "configuratorType": "TEXTFIELD",
+      "description": "<b>Performance that won't weigh you down</b><br/>Enjoy superb quality images, with 10x Optical Zoom, HD movie recording and smart functions in a brilliantly designed package. The perfect partner when you want serious performance in a compact design.<br/><br/><b>Get closer to your subject</b><br/>A high-quality Optical Zoom lens gets closer to the action, letting you fill more of the frame with distant subjects. Unlike digital zoom, you'll get uncompromised image quality at all settings – even high magnifications.<br/><br/><b>Don’t worry about the right settings</b><br/>It can be hard judging the best camera settings to use in tricky situations like twilight portraits and sun-drenched backlit beach scenes. Intelligent Scene Recognition automatically adjusts exposure and other settings, helping you achieve better-looking results with less effort.<br/><br/><b>Beautiful portraits made simple</b><br/>Now it’s easy to capture beautiful, smiling portraits of friends and family. Enhanced Face Detection automatically adjusts camera settings for clear, crisp results with natural skin tones. Smile Shutter fires the shutter automatically when your subject smiles to capture those happy moments.<br/><br/><b>Big, beautiful pictures on your HD TV</b><br/>Why not show off your pictures in more style? Connect your camera to any HD Ready television and enjoy a big, beautiful view of your pictures that everyone can enjoy. If your BRAVIA TV supports PhotoTV HD, you’ll enjoy even incredibly lifelike HD images, packed with detail and vibrant colours.<br/><br/><b>The camera that thinks it’s a camcorder</b><br/>Left your camcorder behind? Don't worry: now you can capture crisp, clear HD movie clips at an incredible 30 frames per second for smooth, clear action. Watch the results on your BRAVIA television: you'll be amazed by the quality, detail and colour.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "DSC-H20 Green",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$558.40",
+        "priceType": "BUY",
+        "value": 558.4
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "DSC-H20, Green, 10.1 Megapixels, 10x Optical Zoom, 3.0\"\" LCD",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-Compacts/DSC-H20/p/1978440_green"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.384615384615385,
+      "code": "1776948",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "5-in-1 Features: 1. 1080p, HiDef Resolution",
+      "manufacturer": "Toshiba",
+      "multidimensional": false,
+      "name": "Camileo S10 EU",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$146.88",
+        "priceType": "BUY",
+        "value": 146.88
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "Camileo S10 EU 5MP CMOS",
+      "url": "/Open-Catalogue/Cameras/Hand-held-Camcorders/Camileo-S10-EU/p/1776948"
+    },
+    {
+      "availableForPickup": true,
+      "code": "1641905",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "Secure Digital High Capacity cards you can rely on. Kingston Technology's Secure Digital High-Capacity (SDHC) memory cards are fully compliant with the Secure Digital Association 2.00 specification. They are the next high performance generation of SD memory cards designed to meet the storage demands of high-quality digital still and video cameras and other high-resolution image recording devices.",
+      "manufacturer": "Kingston",
+      "multidimensional": false,
+      "name": "32GB SDHC Card",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$142.70",
+        "priceType": "BUY",
+        "value": 142.7
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 4,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "SD High Capacity",
+      "url": "/Open-Catalogue/Data-storage/Flash-Memory/32GB-SDHC-Card/p/1641905"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.538461538461538,
+      "code": "816802",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "- 7,2 effective megapixels <br/>- ISO 1000 high sensitivity (REI) for shooting in low-light situations <br/>- Carl-Zeiss Vario-Tessar lens <br/>- 3x optical zoom 6x digital zoom up to 14x smart zoom <br/>- Large 2.5-inch (6.2cm) LCD screen and optical view",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "Cyber-shot W55",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$260.87",
+        "priceType": "BUY",
+        "value": 260.87
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 4,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "Compact and stylish blue design, with 7.2 effective megapixels, high sensitivity for shooting in low-light, ZEISS 3x optical zoom lens, large 2.5-inch LCD screen, STAMINA battery life, and finished with a brushed aluminium face.",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-Compacts/Cyber-shot-W55/p/816802"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.833333333333333,
+      "code": "816780",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "10.2 effective megapixel Digital Single Lens Reflex (D-SLR) camera. High Zoom Lens kit (DT 18-200mm F3.5-6.3 lens). Generous zoom range from a single, compact lens. A great choice for holidays or photo assignments when you need to travel light without compromising creative possibilities.<br/><br/><b>Features:</b><br/>-Compatible with more than 20 α-mount lenses from Sony and Carl Zeiss plus Konica Minolta lenses with A-type bayonet mount. <br/>-10.2 effective megapixel sensor with high-performance BIONZ image processor. <br/>-APS-C sized primary colour CCD. <br/>-Super SteadyShot optical image stabilisation in camera body reduces camera shake with all lenses. <br/>-D-range Optimiser for automatic image enhancement and contrast optimisation. <br/>-2.5-inch 230k pixel Clear Photo LCD Plus screen. <br/>-High capacity lithium ion battery allows up to 750 shots (CIPA measurement). <br/>-Dual anti-dust system protects CCD sensor during lens exchange.",
+      "manufacturer": "Sony",
+      "multidimensional": false,
+      "name": "DSLR-A100H",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$1,086.00",
+        "priceType": "BUY",
+        "value": 1086
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevel": 2,
+        "stockLevelStatus": "lowStock"
+      },
+      "summary": "Digital SLR Camera DSLR-A100H",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-SLR/DSLR-A100H/p/816780"
+    },
+    {
+      "availableForPickup": true,
+      "averageRating": 4.5,
+      "code": "300938",
+      "configurable": false,
+      "configuratorType": "",
+      "description": "Get point and shoot simplicity plus crisp, true-to-life photos with this stylish and easy-to-use camera.<br/><br/>Get close in with 4x digital zoom, review via the clear 3.8 cm LCD then print great 10 × 15 cm photos and enlargements up to poster size.",
+      "manufacturer": "HP",
+      "multidimensional": false,
+      "name": "Photosmart E317 Digital Camera",
+      "price": {
+        "currencyIso": "USD",
+        "formattedValue": "$114.12",
+        "priceType": "BUY",
+        "value": 114.12
+      },
+      "priceRange": {},
+      "stock": {
+        "stockLevelStatus": "inStock"
+      },
+      "summary": "Point and shoot simplicity in a 5 MP camera.",
+      "url": "/Open-Catalogue/Cameras/Digital-Cameras/Digital-Compacts/Photosmart-E317-Digital-Camera/p/300938"
+    }
+  ],
+  "sorts": [
+    {
+      "code": "relevance",
+      "name": "Relevance",
+      "selected": true
+    },
+    {
+      "code": "topRated",
+      "name": "Top Rated",
+      "selected": false
+    },
+    {
+      "code": "name-asc",
+      "name": "Name (ascending)",
+      "selected": false
+    },
+    {
+      "code": "name-desc",
+      "name": "Name (descending)",
+      "selected": false
+    },
+    {
+      "code": "price-asc",
+      "name": "Price (lowest first)",
+      "selected": false
+    },
+    {
+      "code": "price-desc",
+      "name": "Price (highest first)",
+      "selected": false
+    }
+  ]
+}

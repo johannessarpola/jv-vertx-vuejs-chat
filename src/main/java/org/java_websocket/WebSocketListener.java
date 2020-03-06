@@ -157,7 +157,7 @@ public interface WebSocketListener {
 	 * @param conn The <tt>WebSocket</tt> instance this event is occuring on.
 	 * @param ex
 	 *            The exception that occurred. <br>
-	 *            Might be null if the exception is not related to any specific connection. For example if the server port could not be bound.
+	 *            Might be null if the exception is not related to any specific connection. For org.example if the server port could not be bound.
 	 */
 	void onWebsocketError( WebSocket conn, Exception ex );
 

@@ -1,0 +1,6 @@
+<p>products works!</p>
+<div *ngIf="(productSubject$ | async) != null">
+  <div *ngFor="let product of productSubject$ | async">
+    <p>{{ product }}</p>
+  </div>
+</div>

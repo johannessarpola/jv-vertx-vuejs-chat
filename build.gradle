@@ -1,43 +1,72 @@
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'maven'
-
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
 
 repositories {
     mavenLocal()
     mavenCentral()
+    jcenter()
 }
 
-group = 'org.java_websocket'
-version = '1.4.1-SNAPSHOT'
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+ext {
+    vertxVersion = '3.8.5'
+    junitJupiterEngineVersion = '5.4.0'
+}
+
+application {
+    mainClassName = 'io.vertx.core.Launcher'
+}
+def mainVerticleName = 'fi.bilot.sse.sse.MainVerticle'
+def watchForChange = 'src/**/*'
+def doOnChange = './gradlew classes'
+
+group = 'fi.bilot'
+version = '0.1-SNAPSHOT'
+sourceCompatibility = 11
+targetCompatibility = 11
 
 configurations {
     deployerJars
 }
 
-configure(install.repositories.mavenInstaller) {
-    pom.version = project.version
-    pom.groupId = "org.java_websocket"
-    pom.artifactId = 'Java-WebSocket'
-}
-
 dependencies {
-	deployerJars "org.apache.maven.wagon:wagon-webdav:1.0-beta-2"
+
+
+    compile 'io.vertx:vertx-reactive-streams:3.8.5'
+    compile 'io.vertx:vertx-rx-java:3.8.5'
+    compile 'io.vertx:vertx-web-client:3.8.5'
+    deployerJars "org.apache.maven.wagon:wagon-webdav:1.0-beta-2"
+    implementation "io.vertx:vertx-web:$vertxVersion"
+
+    testImplementation "io.vertx:vertx-junit5:$vertxVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterEngineVersion"
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.json', name: 'json', version: '20180130'
+    testCompile "org.mockito:mockito-core:2.+"
 }
 
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Verticle': mainVerticleName
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
 
-//deploy to maven repository
-//uploadArchives {
-//    repositories.mavenDeployer {
-//        configuration = configurations.deployerJars
-//        repository(url: repositoryUrl) {
-//			authentication(userName: repositoryUsername, password: repositoryPassword)
-//		}
-//    }
-//}
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
+}
+
+run {
+    args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+}
