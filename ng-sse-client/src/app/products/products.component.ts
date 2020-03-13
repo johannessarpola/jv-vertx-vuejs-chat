@@ -18,7 +18,7 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit() {
 
-    this.eventSource = new EventSource('//localhost:9003/sse', { withCredentials: true });
+    this.eventSource = new EventSource('//localhost:9003/products/sse', { withCredentials: true });
     const self = this;
 
     this.eventSource.onopen = () => {

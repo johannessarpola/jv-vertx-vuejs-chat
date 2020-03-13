@@ -1,6 +1,7 @@
 package fi.bilot.commerce;
 
 import fi.bilot.commerce.types.Products;
+import fi.bilot.sse.utils.EventStreamingProducer;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -20,7 +21,7 @@ import java.util.stream.IntStream;
 /**
  *
  */
-public class ProductsApiClient implements ProductsApi {
+public class ProductsApiImpl implements ProductsApi {
 
   private String base = "https://localhost:9002/rest/v2";
   private String siteId = "electronics";
@@ -28,10 +29,7 @@ public class ProductsApiClient implements ProductsApi {
   private Vertx vertx;
   private WebClient webClient;
 
-  //curl -X GET "https://localhost:9002/rest/v2/electronics/products/search?currentPage=0&fields=DEFAULT&pageSize=20" -H  "accept: application/json"
-
-
-  public ProductsApiClient(String base, String siteId, String searchPath, WebClient webClient) {
+  public ProductsApiImpl(String base, String siteId, String searchPath, WebClient webClient) {
     this.base = base;
     this.siteId = siteId;
     this.searchPath = searchPath;
@@ -39,7 +37,7 @@ public class ProductsApiClient implements ProductsApi {
   }
 
 
-  public ProductsApiClient(Vertx vertx) {
+  public ProductsApiImpl(Vertx vertx) {
 
     WebClientOptions options = new WebClientOptions()
       .setUserAgent("My-App/1.2.3");
@@ -55,10 +53,6 @@ public class ProductsApiClient implements ProductsApi {
 
   private String formAbsoluteurl(String url, String parameters) {
     return String.format("%s?%s", url, parameters);
-  }
-
-  private String sseFormat(String data) {
-    return String.format("event: message\ndata:%s\n\n", data);
   }
 
   private CompletableFuture<Void> getProductChunk(int page, int pageSize, Consumer<Buffer> callback) {
@@ -90,7 +84,12 @@ public class ProductsApiClient implements ProductsApi {
     return f;
   }
 
-  public void productList(int page, final int pageSize, WriteStream<Buffer> output) {
+
+  public void streamProducts(WriteStream<Buffer> output) {
+    streamProducts(0, 10, output);
+  }
+
+  public void streamProducts(int page, final int pageSize, WriteStream<Buffer> output) {
 
     String url = String.join("/", base, siteId, searchPath);
     String parameters = formParameters(page, pageSize);
@@ -114,7 +113,7 @@ public class ProductsApiClient implements ProductsApi {
               allF.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
-              output.write(Buffer.buffer(sseFormat("poisonPill")));
+              output.write(Buffer.buffer(poisonPill()));
               output.end();
             });
         }
