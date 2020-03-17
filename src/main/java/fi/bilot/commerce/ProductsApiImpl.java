@@ -66,26 +66,26 @@ public class ProductsApiImpl implements ProductsApi {
     String url = String.join("/", base, siteId, searchPath);
     String parameters = formParameters(page, pageSize);
     String completeUrl = formAbsoluteurl(url, parameters);
-    CompletableFuture<Void> f = new CompletableFuture<Void>();
-    Runnable r = () -> {
+    CompletableFuture<Void> f = new CompletableFuture<Void>(); // Promise
+
+    CompletableFuture.runAsync(() -> {
       webClient.getAbs(completeUrl)
         .putHeader("accept", "application/json")
         .send(ar -> {
           if (ar.succeeded()) {
             HttpResponse<Buffer> response = ar.result();
             JsonArray products = response.bodyAsJsonObject().getJsonArray("products");
-            System.out.println("Received response with status code: " + response.statusCode());
+            System.out.println(String.format("Received product array of size %d response with status code: %d", products.size(), response.statusCode()));
             jsonEncodePipeline(products.stream()).forEach(callback::accept);
+            // Signal completion
             f.complete(null);
           } else {
             System.out.println("Reques failed: " + ar.cause().getMessage());
           }
         });
-    };
-    r.run();
+    });
     return f;
   }
-
 
 
   public void streamProducts(WriteStream<Buffer> output) {
@@ -113,21 +113,12 @@ public class ProductsApiImpl implements ProductsApi {
       .send(ar -> {
         if (ar.succeeded()) {
           Pagination pagination =  ar.result().bodyAsJsonObject().getJsonObject("pagination").mapTo(Pagination.class);
-          System.out.println("Received response with status code" + ar.result().statusCode());
+          System.out.println("Received pagination response with status code" + ar.result().statusCode());
+          System.out.println(String.format("Fetching all %d from %d pages of products in parallel", pagination.getTotalResults() ,pagination.getTotalPages()));
 
           List<CompletableFuture<?>> allF = pageStream(page, pagination.getTotalPages())
             .map((v) -> getProductChunk(v, pageSize, (b) -> output.write(b)))
             .collect(Collectors.toList());
-
-
-//          CompletableFuture.allOf(allF.toArray(new CompletableFuture[allF.size()]))
-//            .thenRun(() -> {
-//              allF.stream()
-//                .map(CompletableFuture::join)
-//                .collect(Collectors.toList());
-//              output.write(Buffer.buffer(poisonPill()));
-//              output.end();
-//            });
 
           completeAll(allF).thenRun( () -> {
             output.write(Buffer.buffer(poisonPill()));

@@ -33,7 +33,7 @@ const StockViewer = props => {
     eventSource.addEventListener("poison", poison)
     eventSource.onmessage = onmessage;
 
-  }, []);
+  }, []); // [] to run this only once
 
   return (
     <table className="table table-hover">

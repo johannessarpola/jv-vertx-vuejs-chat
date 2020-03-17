@@ -9,13 +9,13 @@ import {ProductsService} from "../products.service";
 })
 export class ProductsComponent implements OnInit {
   products$: Observable<any[]>;
+  products: any[] = [];
   searchString: string;
 
   constructor(private service: ProductsService) {}
 
   ngOnInit() {
     const self = this;
-    let array = [];
 
 
     this.products$ = new Observable(obs => {
@@ -23,15 +23,13 @@ export class ProductsComponent implements OnInit {
 
       source.subscribe(
         val => {
-          array.push(val);
+          console.log(val);
+          this.products = [ ... this.products, ... val ];
+          obs.next(this.products);
         },
         err => console.log(err),
         () => obs.complete()
       );
-
-      const interval = setInterval(() => {
-        obs.next(array);
-      }, 100);
     });
   }
 }

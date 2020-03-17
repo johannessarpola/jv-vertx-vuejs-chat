@@ -1,8 +1,6 @@
 import { Injectable } from "@angular/core";
-import {Observable, Subject} from 'rxjs';
-import { map } from 'rxjs/operators';
-
-
+import { Observable, Subject } from "rxjs";
+import { map, bufferTime, filter } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -12,14 +10,13 @@ export class ProductsService {
   constructor() {}
 
   fetchProducts(): Observable<any> {
-    const self = this;
-    this.eventSource = new EventSource('http://localhost:9003/products/sse', {
+    this.eventSource = new EventSource("http://localhost:9003/products/sse", {
       withCredentials: true
     });
 
     const subject: Subject<any> = new Subject();
 
-    this.eventSource.addEventListener("poison", e => {
+    this.eventSource.addEventListener('poison', e => {
       console.log('Received poison, closing');
       this.eventSource.close();
       subject.complete();
@@ -29,6 +26,10 @@ export class ProductsService {
       subject.next(msg.data);
     };
 
-    return subject.pipe(map(v => JSON.parse(v)));
+    return subject.pipe(
+      map(v => JSON.parse(v)),
+      bufferTime(500),
+      filter(buffer => buffer.length > 0)
+    );
   }
 }
