@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./StockViewer.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import moment from "moment";
 
 
 const StockViewer = props => {
@@ -51,9 +52,9 @@ const StockViewer = props => {
           <tr key={p.index}>
             <td>{p.index}</td>
             <td>{p.stock}</td>
-            <td>{p.latestPrice}</td>
-            <td>{p.delta}</td>
-            <td>{p.timeStamp}</td>
+            <td>{Number(p.latestPrice).toFixed(2)}</td>
+            <td>{Number(p.delta).toFixed(2)}</td>
+            <td>{moment(p.timeStamp).format("YYYY/MM/DD HH:mm:ss")}</td>
           </tr>
         ))}
       </tbody>
