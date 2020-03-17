@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public interface StocksApi extends EventStreamingProducer {
 
 
- void updatesFor(String stockId, Consumer<StockData> dataSink);
+ void updatesFor(String stockId, Consumer<StockData> dataSink, Runnable onClose);
 
 }
 

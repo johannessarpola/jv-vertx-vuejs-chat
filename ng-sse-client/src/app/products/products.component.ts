@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { Product } from '../product';
-import { Observable, Subject, BehaviorSubject } from 'rxjs'
+import { Observable } from "rxjs";
+import {ProductsService} from "../products.service";
 
 @Component({
   selector: "app-products",
@@ -8,36 +8,30 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs'
   styleUrls: ["./products.component.css"]
 })
 export class ProductsComponent implements OnInit {
+  products$: Observable<any[]>;
+  searchString: string;
 
-  eventSource: EventSource;
-  productSubject: Subject<Product[]> = new Subject<Product[]>();
-  productSubject$: Observable<Product[]> = this.productSubject.asObservable();
-  products: Product[] = [];
-
-  constructor() {}
+  constructor(private service: ProductsService) {}
 
   ngOnInit() {
-
-    this.eventSource = new EventSource('//localhost:9003/products/sse', { withCredentials: true });
     const self = this;
+    let array = [];
 
-    this.eventSource.onopen = () => {
-      console.log("opened event source");
-    }
 
-    this.eventSource.onerror = (err) => {
-      this.eventSource.close();
-    }
+    this.products$ = new Observable(obs => {
+      const source = self.service.fetchProducts();
 
-    this.eventSource.onmessage = (event) => {
-      if(event.data == "poisonPill") {
-        this.eventSource.close();
-      } else {
-        const obj = JSON.parse(event.data) as Product;
-        self.products.push(obj);
-        self.productSubject.next(self.products);
-      }
+      source.subscribe(
+        val => {
+          array.push(val);
+        },
+        err => console.log(err),
+        () => obs.complete()
+      );
 
-    };
+      const interval = setInterval(() => {
+        obs.next(array);
+      }, 100);
+    });
   }
 }

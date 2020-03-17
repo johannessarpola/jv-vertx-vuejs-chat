@@ -10,7 +10,7 @@ public interface EventStreamingProducer {
   }
 
   default String poisonPill() {
-    return sseFormat("poisonPill");
+    return String.format("event: poison\ndata:\n\n");
   }
 
 }

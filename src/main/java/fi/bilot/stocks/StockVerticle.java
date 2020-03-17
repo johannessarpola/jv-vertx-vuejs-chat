@@ -39,7 +39,9 @@ public class StockVerticle extends AbstractVerticle implements EventStreamingEnd
       JsonObject start = new JsonObject();
       start.put("ok", "ok");
 
-      stocksApi.updatesFor("G00GL", (sd) -> response.write(sseFormat(JsonObject.mapFrom(sd).encode()) )); // TODO Quit condition
+      stocksApi.updatesFor("G00GL",
+                           (sd) -> response.write(sseFormat(JsonObject.mapFrom(sd).encode())),
+                           () -> response.write(poisonPill()));
 
     });
 
