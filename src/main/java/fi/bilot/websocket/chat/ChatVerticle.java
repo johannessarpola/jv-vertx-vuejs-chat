@@ -8,8 +8,12 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
@@ -29,17 +33,6 @@ public class ChatVerticle extends AbstractVerticle {
     super.init(vertx, context);
   }
 
-  private void createEventBus(String consumeAddress, String publishAddress) {
-    EventBus eb = vertx.eventBus();
-    // Register to listen for messages coming IN to the server
-    eb.consumer(consumeAddress).handler(message -> {
-      // Create a timestamp string
-      String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
-      // Send the message back out to all clients with the timestamp prepended.
-      eb.publish(publishAddress, timestamp + ": " + message.body());
-    });
-  }
-
   public Router createRouter() {
     Router router = Router.router(vertx);
 
@@ -54,9 +47,38 @@ public class ChatVerticle extends AbstractVerticle {
 
     SockJSHandler sockHandler = SockJSHandler.create(vertx);
     sockHandler.bridge(opts);
-    router.route("/socket").handler(sockHandler);
+    sockHandler.socketHandler( (socket) -> {
+      System.out.println("sockHandler");
+    });
 
-    createEventBus(chatToServer, chatToClient);
+    router.route().handler(
+      CorsHandler.create("http://localhost:8080")
+        .allowedMethod(io.vertx.core.http.HttpMethod.GET)
+        .allowedMethod(io.vertx.core.http.HttpMethod.POST)
+        .allowedMethod(io.vertx.core.http.HttpMethod.PUT)
+        .allowedMethod(io.vertx.core.http.HttpMethod.OPTIONS)
+        .allowCredentials(true)
+        .allowedHeader("Access-Control-Allow-Method")
+        .allowedHeader("Access-Control-Allow-Origin")
+        .allowedHeader("Access-Control-Allow-Credentials")
+        .allowedHeader("Content-Type"))
+      .consumes("application/json")
+      .produces("application/json");
+
+    router.route().handler(BodyHandler.create());
+
+    router.route("/room/*").handler(sockHandler);
+
+    EventBus eb = vertx.eventBus();
+    // Register to listen for messages coming IN to the server
+    eb.consumer("chat.to.server").handler(message -> {
+      // Create a timestamp string
+      String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
+      // Send the message back out to all clients with the timestamp prepended.
+      eb.publish("chat.to.client", timestamp + ": " + message.body());
+    });
+
+
     return router;
   }
 
