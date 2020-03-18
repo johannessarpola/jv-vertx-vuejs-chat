@@ -1,4 +1,4 @@
-package fi.bilot.commerce;
+package fi.bilot.products.commerce;
 
 import fi.bilot.sse.utils.EventStreamingProducer;
 import io.vertx.core.buffer.Buffer;

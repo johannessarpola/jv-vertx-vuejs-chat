@@ -1,4 +1,4 @@
-package fi.bilot.commerce.types;
+package fi.bilot.products.commerce.types;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

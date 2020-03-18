@@ -1,8 +1,8 @@
-package fi.bilot.stocks;
+package fi.bilot.products.commerce;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import fi.bilot.sse.utils.EventStreamingEndpoint;
-import fi.bilot.sse.utils.EventStreamingProducer;
+import fi.bilot.stocks.StocksApi;
+import fi.bilot.stocks.StocksDummyApiImpl;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
@@ -11,37 +11,28 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
-import java.util.stream.Stream;
-
 /**
- *
+ * Johannes on 18.3.2020.
  */
-public class StockVerticle extends AbstractVerticle implements EventStreamingEndpoint, EventStreamingProducer {
+public class ProductVerticle extends AbstractVerticle implements EventStreamingEndpoint {
 
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
   }
 
-
   public Router createRouter() {
     Router router = Router.router(vertx);
-
-    StocksApi stocksApi = new StocksDummyApiImpl();
+    ProductsApi productsApi = new ProductsApiImpl(vertx);
 
     router.route("/test").handler( (routingContext) -> {
-      routingContext.response().end("Stocks works!");
+      routingContext.response().end("Products works!");
     });
 
     router.route("/sse").handler( routingContext -> {
       HttpServerResponse response = routingContext.response();
-      addStreamingHeaders(response, "http://localhost:3000");
-      JsonObject start = new JsonObject();
-      start.put("ok", "ok");
-
-      stocksApi.updatesFor("G00GL",
-                           (sd) -> response.write(sseFormat(JsonObject.mapFrom(sd).encode())),
-                           () -> response.write(poisonPill()));
+      addStreamingHeaders(response, "http://localhost:4201");
+      productsApi.streamProducts(response);
 
     });
 

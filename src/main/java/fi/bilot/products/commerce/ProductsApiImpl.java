@@ -1,6 +1,6 @@
-package fi.bilot.commerce;
+package fi.bilot.products.commerce;
 
-import fi.bilot.commerce.types.Pagination;
+import fi.bilot.products.commerce.types.Pagination;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
