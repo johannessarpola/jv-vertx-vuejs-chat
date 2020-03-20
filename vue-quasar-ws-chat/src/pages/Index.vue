@@ -7,20 +7,21 @@
   </q-page>
 </template>
 <script>
-const SockJS = require('sockjs-client')
-const sock = new SockJS('http://localhost:9003/chat/room/1')
-sock.onopen = function () {
-  console.log('open')
-  const obj = { test: 'ok'}
-  sock.send(JSON.stringify(obj))
-}
-sock.onmessage = function (e) {
-  console.log('message', e.data)
-  sock.close()
-}
-sock.onclose = function () {
-  console.log('close')
-}
+console.log("Started socket");
+const socket = new WebSocket('ws://localhost:9003/chat/room/1');
+// Connection opened
+socket.addEventListener('open', function (event) {
+  setInterval( () => {
+    socket.send(new Date());
+  }, 2000);
+});
+
+// Listen for messages
+socket.addEventListener('message', function (event) {
+  const msg = JSON.parse(event.data);
+  console.log('Message from server ', msg.user.userId + ":" + msg.message );
+});
+
 export default {
   name: 'PageIndex'
 }

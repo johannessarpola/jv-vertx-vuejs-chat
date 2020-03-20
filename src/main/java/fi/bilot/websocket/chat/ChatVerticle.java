@@ -1,32 +1,35 @@
 package fi.bilot.websocket.chat;
 
-import fi.bilot.products.commerce.ProductsApi;
-import fi.bilot.products.commerce.ProductsApiImpl;
+import fi.bilot.websocket.chat.types.Message;
+import fi.bilot.websocket.chat.types.User;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.bridge.BridgeEventType;
-import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
-import java.text.DateFormat;
-import java.time.Instant;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Johannes on 18.3.2020.
  */
 public class ChatVerticle extends AbstractVerticle {
-  public static String chatToServer = "chat.to.server";
-  public static String chatToClient = "chat.to.client";
+
+  private Map<String, Set<User>> rooms = new ConcurrentHashMap<>();
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -35,21 +38,6 @@ public class ChatVerticle extends AbstractVerticle {
 
   public Router createRouter() {
     Router router = Router.router(vertx);
-
-    router.route("/test").handler((routingContext) -> {
-      routingContext.response().end("Chat works!");
-    });
-
-    // Allow events for the designated addresses in/out of the event bus bridge
-    BridgeOptions opts = new BridgeOptions()
-      .addInboundPermitted(new PermittedOptions().setAddress(chatToServer))
-      .addOutboundPermitted(new PermittedOptions().setAddress(chatToClient));
-
-    SockJSHandler sockHandler = SockJSHandler.create(vertx);
-    sockHandler.bridge(opts);
-    sockHandler.socketHandler( (socket) -> {
-      System.out.println("sockHandler");
-    });
 
     router.route().handler(
       CorsHandler.create("http://localhost:8080")
@@ -61,23 +49,55 @@ public class ChatVerticle extends AbstractVerticle {
         .allowedHeader("Access-Control-Allow-Method")
         .allowedHeader("Access-Control-Allow-Origin")
         .allowedHeader("Access-Control-Allow-Credentials")
-        .allowedHeader("Content-Type"))
-      .consumes("application/json")
-      .produces("application/json");
+        .allowedHeader("Content-Type"));
 
     router.route().handler(BodyHandler.create());
 
-    router.route("/room/*").handler(sockHandler);
-
-    EventBus eb = vertx.eventBus();
-    // Register to listen for messages coming IN to the server
-    eb.consumer("chat.to.server").handler(message -> {
-      // Create a timestamp string
-      String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
-      // Send the message back out to all clients with the timestamp prepended.
-      eb.publish("chat.to.client", timestamp + ": " + message.body());
+    router.route("/test").handler((routingContext) -> {
+      routingContext.response().end("Chat works!");
     });
 
+    router.route("/room/:roomId").handler( (routingContext) -> {
+      String roomId = routingContext.request().getParam("roomId");
+      ServerWebSocket socket = routingContext.request().upgrade();
+      User user = new User(socket, roomId, java.util.UUID.randomUUID().toString());
+
+      if(rooms.containsKey(roomId)) {
+        rooms.get(roomId).add(user);
+      } else {
+        Set<User> s = new HashSet<>();
+        s.add(user);
+        rooms.put(roomId, s);
+      }
+
+      socket.exceptionHandler((err) -> {
+        System.out.println("Error");
+        System.out.println(err.getMessage());
+        rooms.get(roomId).remove(socket);
+        socket.close();
+      });
+
+      socket.closeHandler( (close) -> {
+        System.out.println("Close");
+        rooms.get(roomId).remove(socket);
+      });
+
+      // TODO Custom event type for welcome
+
+      if(!socket.isClosed()) {
+        socket.writeTextMessage(new Message(user, "Assigned id").json());
+        socket.textMessageHandler( (msg) -> {
+          Message m = new Message(user, msg);
+          System.out.println("Server received a message: " +msg);
+          rooms.get(roomId).forEach( (connectedUser) -> {
+            // Broadcast to other users
+            if(connectedUser != user) {
+              connectedUser.getSocket().writeTextMessage(m.json());
+            }
+          });
+        });
+      }
+    });
 
     return router;
   }

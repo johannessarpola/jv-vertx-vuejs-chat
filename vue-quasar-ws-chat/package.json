@@ -14,9 +14,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
-    "quasar": "^1.0.0",
-    "sockjs": "^0.3.20",
-    "sockjs-client": "^1.4.0"
+    "quasar": "^1.0.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",
