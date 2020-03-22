@@ -46,7 +46,7 @@ public class ChatVerticle extends AbstractVerticle {
     });
   }
 
-  public Router createRouter() {
+  private Router initializeRouter() {
     Router router = Router.router(vertx);
 
     router.route().handler(
@@ -62,6 +62,12 @@ public class ChatVerticle extends AbstractVerticle {
         .allowedHeader("Content-Type"));
 
     router.route().handler(BodyHandler.create());
+
+    return router;
+  }
+
+  public Router createRouter() {
+    Router router = initializeRouter();
 
     router.route("/test").handler((routingContext) -> {
       routingContext.response().end("Chat works!");
