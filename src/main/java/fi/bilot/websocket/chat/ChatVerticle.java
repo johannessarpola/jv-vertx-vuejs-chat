@@ -1,25 +1,20 @@
 package fi.bilot.websocket.chat;
 
-import fi.bilot.websocket.chat.types.Message;
+import fi.bilot.websocket.chat.types.AssignedId;
+import fi.bilot.websocket.chat.types.ChatMessage;
+import fi.bilot.websocket.chat.types.MessageEvent;
 import fi.bilot.websocket.chat.types.User;
+import fi.bilot.websocket.chat.types.UserJoined;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
-import io.vertx.core.MultiMap;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.ServerWebSocket;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +25,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatVerticle extends AbstractVerticle {
 
   private Map<String, Set<User>> rooms = new ConcurrentHashMap<>();
+  private User serverUser = new User(null, "-1", "Server");
 
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
+  }
+
+  private void welcome(User newUser, Set<User> users) {
+    UserJoined m = new UserJoined(newUser.getUserId());
+    broadcast(m, users);
+  }
+
+  private void broadcast(MessageEvent message, Set<User> recipients) {
+    recipients.forEach( (connectedUser) -> {
+      // Broadcast to other users
+      if(message.recipientFilter(connectedUser)) {
+        connectedUser.getSocket().writeTextMessage(message.json());
+      }
+    });
   }
 
   public Router createRouter() {
@@ -61,40 +71,37 @@ public class ChatVerticle extends AbstractVerticle {
       String roomId = routingContext.request().getParam("roomId");
       ServerWebSocket socket = routingContext.request().upgrade();
       User user = new User(socket, roomId, java.util.UUID.randomUUID().toString());
+      socket.writeTextMessage(new AssignedId(user.getUserId()).json());
 
       if(rooms.containsKey(roomId)) {
-        rooms.get(roomId).add(user);
+        Set<User> existingUsers = rooms.get(roomId);
+        existingUsers.add(user);
       } else {
+
         Set<User> s = new HashSet<>();
         s.add(user);
         rooms.put(roomId, s);
       }
 
+      welcome(user, rooms.get(roomId));
+
       socket.exceptionHandler((err) -> {
         System.out.println("Error");
         System.out.println(err.getMessage());
-        rooms.get(roomId).remove(socket);
+        rooms.get(roomId).remove(user);
         socket.close();
       });
 
       socket.closeHandler( (close) -> {
         System.out.println("Close");
-        rooms.get(roomId).remove(socket);
+        rooms.get(roomId).remove(user);
       });
 
-      // TODO Custom event type for welcome
-
       if(!socket.isClosed()) {
-        socket.writeTextMessage(new Message(user, "Assigned id").json());
         socket.textMessageHandler( (msg) -> {
-          Message m = new Message(user, msg);
+          ChatMessage m = new ChatMessage(user.getUserId(), msg);
           System.out.println("Server received a message: " +msg);
-          rooms.get(roomId).forEach( (connectedUser) -> {
-            // Broadcast to other users
-            if(connectedUser != user) {
-              connectedUser.getSocket().writeTextMessage(m.json());
-            }
-          });
+          broadcast(m, rooms.get(roomId));
         });
       }
     });

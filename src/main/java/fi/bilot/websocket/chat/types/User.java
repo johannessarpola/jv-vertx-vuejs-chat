@@ -45,4 +45,9 @@ public class User {
   public void setUserId(String userId) {
     this.userId = userId;
   }
+
+  @Override
+  public int hashCode() {
+    return String.format("%s_%s", this.getRoomId(), this.getUserId()).hashCode();
+  }
 }
