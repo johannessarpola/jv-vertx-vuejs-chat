@@ -1,13 +1,15 @@
 <template>
   <q-page class="flex flex-center">
-    <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-full.svg"
-    >
+    <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" />
+      <div>
+    <Chat />
+  </div>
   </q-page>
+
 </template>
 <script>
-
+import "../components/Chat";
+/* 
   console.log("Started socket");
   const socket = new WebSocket('ws://localhost:9003/chat/room/1');
   // Connection opened
@@ -33,9 +35,12 @@
         console.log(`New user joined room with id ${message.id}`);
         break;
     }
-  };
+  }; */
 
-  export default {
-    name: 'PageIndex'
+export default {
+  name: "PageIndex",
+  components: {
+    Chat
   }
+};
 </script>
