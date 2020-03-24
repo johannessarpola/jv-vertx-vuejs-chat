@@ -23,11 +23,13 @@
 <script>
 import moment from 'moment';
 import MessagesList from './MessagesList';
+import InputContainer from './InputContainer';
 
 export default {
   name: "Chat",
   components: {
-    MessagesList
+    MessagesList,
+    InputContainer
   },
   props: {
     address: {
@@ -51,8 +53,10 @@ export default {
     }
   },
   data: function() {
+    const socket = new WebSocket("ws://localhost:9003/chat/room/1");
     return {
       feed: [],
+      socket: socket,
       authorId: "0"
     };
   },
@@ -65,16 +69,7 @@ export default {
   mounted() {
 
     console.log("Started socket");
-    const socket = new WebSocket("ws://localhost:9003/chat/room/1");
-    // Connection opened
-    socket.addEventListener("open", function(event) {
-      console.log(event);
-      setInterval(() => {
-        socket.send(new Date());
-      }, 10000);
-    });
-    // Listen for messages
-    socket.onmessage = this.messageHandler 
+    this.socket.onmessage = this.messageHandler;
     this.feed = this.initialFeed;
     this.authorId = this.initialAuthorId;
   },
@@ -120,8 +115,11 @@ export default {
         contents: message,
         date: moment().format("HH:mm:ss")
       };
+    
+      const json = JSON.stringify(newOwnMessage);
+      console.log(json);
+      this.socket.send( JSON.stringify ({ senderId: this.authorId, message: 'message' }) );
       this.pushToFeed(newOwnMessage);
-      this.$emit("newOwnMessage", message);
     }
   }
 };

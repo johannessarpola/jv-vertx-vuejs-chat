@@ -1,5 +1,6 @@
 package fi.bilot.websocket.chat;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import fi.bilot.websocket.chat.types.AssignedId;
 import fi.bilot.websocket.chat.types.ChatMessage;
 import fi.bilot.websocket.chat.types.MessageEvent;
@@ -10,6 +11,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -104,6 +106,7 @@ public class ChatVerticle extends AbstractVerticle {
       });
 
       if(!socket.isClosed()) {
+        // TODO Gets into endless loop of text -> broadcast
         socket.textMessageHandler( (msg) -> {
           ChatMessage m = new ChatMessage(user.getUserId(), msg);
           System.out.println("Server received a message: " +msg);
