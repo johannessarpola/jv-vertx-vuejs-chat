@@ -1,14 +1,11 @@
 <template>
   <q-page class="flex flex-center">
-    <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" />
-      <div>
     <Chat />
-  </div>
   </q-page>
 
 </template>
 <script>
-import "../components/Chat";
+import Chat from '../components/Chat';
 /* 
   console.log("Started socket");
   const socket = new WebSocket('ws://localhost:9003/chat/room/1');
