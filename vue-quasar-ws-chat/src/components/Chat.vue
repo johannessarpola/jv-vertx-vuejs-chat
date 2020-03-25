@@ -109,6 +109,16 @@ export default {
     pushToFeed(element) {
       this.feed.push(element);
     },
+    receiveMessage(message) {
+      const obj = JSON.parse(message);
+      const newMesssage = {
+        id: obj.senderId,
+        contents: obj.message,
+        date: moment().format("HH:mm:ss")
+      };
+
+      this.pushToFeed(newMesssage);
+    },
     onNewOwnMessage(message) {
       
       const newOwnMessage = {
