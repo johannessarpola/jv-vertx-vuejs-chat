@@ -28,6 +28,7 @@ public class ChatVerticle extends AbstractVerticle {
 
   private Map<String, Set<User>> rooms = new ConcurrentHashMap<>();
   private User serverUser = new User(null, "-1", "Server");
+  private int lastHashSent = -1;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -43,7 +44,9 @@ public class ChatVerticle extends AbstractVerticle {
     recipients.forEach( (connectedUser) -> {
       // Broadcast to other users
       if(message.recipientFilter(connectedUser)) {
-        connectedUser.getSocket().writeTextMessage(message.json());
+        var j = message.json();
+        this.lastHashSent = j.hashCode();
+        connectedUser.getSocket().writeTextMessage(j);
       }
     });
   }
@@ -108,9 +111,11 @@ public class ChatVerticle extends AbstractVerticle {
       if(!socket.isClosed()) {
         // TODO Gets into endless loop of text -> broadcast
         socket.textMessageHandler( (msg) -> {
-          ChatMessage m = new ChatMessage(user.getUserId(), msg);
-          System.out.println("Server received a message: " +msg);
-          broadcast(m, rooms.get(roomId));
+          if(lastHashSent != msg.hashCode()) {
+            ChatMessage m = new ChatMessage(user.getUserId(), msg);
+            System.out.println("Server received a message: " +msg);
+            broadcast(m, rooms.get(roomId));
+          }
         });
       }
     });

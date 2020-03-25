@@ -110,6 +110,7 @@ export default {
       this.feed.push(element);
     },
     onNewOwnMessage(message) {
+      
       const newOwnMessage = {
         id: this.authorId,
         contents: message,
