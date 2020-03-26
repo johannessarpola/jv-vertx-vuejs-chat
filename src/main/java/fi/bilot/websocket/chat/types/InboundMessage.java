@@ -1,16 +1,19 @@
 package fi.bilot.websocket.chat.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InboundMessage {
 
   private String date;
-  private String message;
+  private String contents;
 
-  public InboundMessage(String date, String message) {
+  public InboundMessage(String date, String contents) {
     this.date = date;
-    this.message = message;
+    this.contents = contents;
   }
 
   public InboundMessage() {
@@ -24,11 +27,11 @@ public class InboundMessage {
     this.date = date;
   }
 
-  public String getMessage() {
-    return message;
+  public String getContents() {
+    return contents;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setContents(String contents) {
+    this.contents = contents;
   }
 }
