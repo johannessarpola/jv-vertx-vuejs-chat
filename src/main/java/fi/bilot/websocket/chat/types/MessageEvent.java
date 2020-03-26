@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Johannes on 22.3.2020.
  */
-public interface MessageEvent {
+public interface MessageEvent extends ToJson {
 
   String getType();
   default String json() {

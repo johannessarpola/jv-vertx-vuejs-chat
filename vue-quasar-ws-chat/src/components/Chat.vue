@@ -19,14 +19,13 @@
   </div>
 </template>
 
-
 <script>
-import moment from 'moment';
-import MessagesList from './MessagesList';
-import InputContainer from './InputContainer';
+import moment from 'moment'
+import MessagesList from './MessagesList'
+import InputContainer from './InputContainer'
 
 export default {
-  name: "Chat",
+  name: 'Chat',
   components: {
     MessagesList,
     InputContainer
@@ -34,104 +33,102 @@ export default {
   props: {
     address: {
       type: String,
-      default: "ws://localhost:9003/chat/room/1",
+      default: 'ws://localhost:9003/chat/room/1',
       required: true
     },
     initialFeed: {
       type: Array,
-      default: function() {
-        return [];
+      default: function () {
+        return []
       },
       required: false
     },
     newMessage: {
       type: Object,
-      default: function() {
-        return {};
+      default: function () {
+        return {}
       },
       required: false
     }
   },
-  data: function() {
-    const socket = new WebSocket("ws://localhost:9003/chat/room/1");
+  data: function () {
+    const socket = new WebSocket('ws://localhost:9003/chat/room/1')
     return {
       feed: [],
       socket: socket,
-      authorId: "0"
-    };
+      authorId: '0'
+    }
   },
   watch: {
-    newMessage: function(newValue, oldValue) {
-      this.pushToFeed(newValue);
+    newMessage: function (newValue, oldValue) {
+      this.pushToFeed(newValue)
       // scrollToBottom()
     }
   },
-  mounted() {
-
-    console.log("Started socket");
-    this.socket.onmessage = this.messageHandler;
-    this.feed = this.initialFeed;
-    this.authorId = this.initialAuthorId;
+  mounted () {
+    console.log('Started socket')
+    this.socket.onmessage = this.messageHandler
+    this.feed = this.initialFeed
+    this.authorId = this.initialAuthorId
   },
   methods: {
-    messageHandler(event) {
-      console.log(event);
-      const message = JSON.parse(event.data);
+    messageHandler (event) {
+      console.log(event)
+      const message = JSON.parse(event.data)
 
       switch (message.type) {
-        case "chat":
-          console.log(`${message.senderId}: ${message.message}`);
-          this.onNewOwnMessage(message.message);
-          break;
-        case "assigned_id":
-          console.log(`Got assigned ID: ${message.id}`);
-          this.assignedId(message);
-          break;
-        case "user_joined":
-          this.welcome(message);
-          console.log(`New user joined room with id ${message.id}`);
-          break;
+        case 'chat':
+          console.log(`${message.senderId}: ${message.message}`)
+          this.onNewOwnMessage(message.message)
+          break
+        case 'assigned_id':
+          console.log(`Got assigned ID: ${message.id}`)
+          this.assignedId(message)
+          break
+        case 'user_joined':
+          this.welcome(message)
+          console.log(`New user joined room with id ${message.id}`)
+          break
       }
     },
-    assignedId(m) {
-      console.log("assignedId");
-      this.authorId = m.id;
+    assignedId (m) {
+      console.log('assignedId')
+      this.authorId = m.id
     },
-    welcome(m) {
-      console.log("welcome");
+    welcome (m) {
+      console.log('welcome')
       const message = {
-        id: "Server",
+        id: 'Server',
         contents: `New user joined room with ID: ${m.id}`,
-        date: moment().format("HH:mm:ss")
-      };
-      this.pushToFeed(message);
+        date: moment().format('HH:mm:ss')
+      }
+      this.pushToFeed(message)
     },
-    pushToFeed(element) {
-      this.feed.push(element);
+    pushToFeed (element) {
+      this.feed.push(element)
     },
-    receiveMessage(message) {
-      const obj = JSON.parse(message);
+    receiveMessage (message) {
+      const obj = JSON.parse(message)
       const newMesssage = {
-        id: obj.senderId,
         contents: obj.message,
-        date: moment().format("HH:mm:ss")
-      };
+        date: moment().format('HH:mm:ss')
+      }
 
-      this.pushToFeed(newMesssage);
+      this.pushToFeed(newMesssage)
     },
-    onNewOwnMessage(message) {
-      
+    onNewOwnMessage (message) {
       const newOwnMessage = {
         id: this.authorId,
         contents: message,
-        date: moment().format("HH:mm:ss")
-      };
-    
-      const json = JSON.stringify(newOwnMessage);
-      console.log(json);
-      this.socket.send( JSON.stringify ({ senderId: this.authorId, message: 'message' }) );
-      this.pushToFeed(newOwnMessage);
+        date: moment().format('HH:mm:ss')
+      }
+
+      const json = JSON.stringify(newOwnMessage)
+      console.log("onNewOwnMessage")
+      console.log(json)
+      this.socket.send(json)
+      this.pushToFeed(newOwnMessage)
     }
   }
-};
+}
 </script>

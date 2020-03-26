@@ -1,17 +1,18 @@
 package fi.bilot.websocket.chat;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import fi.bilot.websocket.chat.types.AssignedId;
-import fi.bilot.websocket.chat.types.ChatMessage;
 import fi.bilot.websocket.chat.types.MessageEvent;
 import fi.bilot.websocket.chat.types.User;
 import fi.bilot.websocket.chat.types.UserJoined;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.ServerWebSocket;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -26,9 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChatVerticle extends AbstractVerticle {
 
+  private ChatMediator cm;
   private Map<String, Set<User>> rooms = new ConcurrentHashMap<>();
-  private User serverUser = new User(null, "-1", "Server");
-  private int lastHashSent = -1;
 
   @Override
   public void init(Vertx vertx, Context context) {
@@ -41,11 +41,10 @@ public class ChatVerticle extends AbstractVerticle {
   }
 
   private void broadcast(MessageEvent message, Set<User> recipients) {
-    recipients.forEach( (connectedUser) -> {
+    recipients.forEach((connectedUser) -> {
       // Broadcast to other users
-      if(message.recipientFilter(connectedUser)) {
+      if (message.recipientFilter(connectedUser)) {
         var j = message.json();
-        this.lastHashSent = j.hashCode();
         connectedUser.getSocket().writeTextMessage(j);
       }
     });
@@ -54,6 +53,7 @@ public class ChatVerticle extends AbstractVerticle {
   private Router initializeRouter() {
     Router router = Router.router(vertx);
 
+    this.cm = new ChatMediator(vertx.eventBus());
     router.route().handler(
       CorsHandler.create("http://localhost:8080")
         .allowedMethod(io.vertx.core.http.HttpMethod.GET)
@@ -71,6 +71,40 @@ public class ChatVerticle extends AbstractVerticle {
     return router;
   }
 
+  private void joinRoom(String roomId, User user) {
+    if (rooms.containsKey(roomId)) {
+      Set<User> existingUsers = rooms.get(roomId);
+      existingUsers.add(user);
+      cm.registerUser(roomId, user);
+    } else {
+      Set<User> s = new HashSet<>();
+      s.add(user);
+      rooms.put(roomId, s);
+      cm.newRoom(roomId, user);
+    }
+  }
+
+  private Handler<Throwable> onExceptions(User user, String roomId) {
+    return (err) -> {
+      System.out.println("onExceptions");
+      System.out.println(err.getMessage());
+      rooms.get(roomId).remove(user);
+      user.getSocket().close();
+    };
+  }
+
+  private Handler<Void> onClose(User user, String roomId) {
+    return (err) -> {
+      System.out.println("onClose");
+      rooms.get(roomId).remove(user);
+    };
+  }
+
+  private void assignedId(User user) {
+    user.getSocket().writeTextMessage(new AssignedId(user.getUserId()).json());
+  }
+
+
   public Router createRouter() {
     Router router = initializeRouter();
 
@@ -78,46 +112,26 @@ public class ChatVerticle extends AbstractVerticle {
       routingContext.response().end("Chat works!");
     });
 
-    router.route("/room/:roomId").handler( (routingContext) -> {
+    router.route("/room/:roomId").handler((routingContext) -> {
       String roomId = routingContext.request().getParam("roomId");
       ServerWebSocket socket = routingContext.request().upgrade();
       User user = new User(socket, roomId, java.util.UUID.randomUUID().toString());
-      socket.writeTextMessage(new AssignedId(user.getUserId()).json());
 
-      if(rooms.containsKey(roomId)) {
-        Set<User> existingUsers = rooms.get(roomId);
-        existingUsers.add(user);
-      } else {
+      ReadStream<Buffer> rs = socket;
+      WriteStream<Buffer> ws = socket;
 
-        Set<User> s = new HashSet<>();
-        s.add(user);
-        rooms.put(roomId, s);
-      }
-
+      assignedId(user);
+      joinRoom(roomId, user);
       welcome(user, rooms.get(roomId));
 
-      socket.exceptionHandler((err) -> {
-        System.out.println("Error");
-        System.out.println(err.getMessage());
-        rooms.get(roomId).remove(user);
-        socket.close();
-      });
+      socket.exceptionHandler(onExceptions(user, roomId));
+      socket.closeHandler(onClose(user, roomId));
 
-      socket.closeHandler( (close) -> {
-        System.out.println("Close");
-        rooms.get(roomId).remove(user);
+      rs.handler((msgb) -> {
+        System.out.println("! Readstream");
+        System.out.println(msgb.toString());
+        cm.onMessage(roomId, msgb);
       });
-
-      if(!socket.isClosed()) {
-        // TODO Gets into endless loop of text -> broadcast
-        socket.textMessageHandler( (msg) -> {
-          if(lastHashSent != msg.hashCode()) {
-            ChatMessage m = new ChatMessage(user.getUserId(), msg);
-            System.out.println("Server received a message: " +msg);
-            broadcast(m, rooms.get(roomId));
-          }
-        });
-      }
     });
 
     return router;

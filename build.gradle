@@ -18,7 +18,7 @@ ext {
 application {
     mainClassName = 'io.vertx.core.Launcher'
 }
-def mainVerticleName = 'fi.bilot.sse.sse.MainVerticle'
+def mainVerticleName = 'fi.bilot.vertx.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
