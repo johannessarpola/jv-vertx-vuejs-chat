@@ -79,7 +79,7 @@ export default {
       switch (message.type) {
         case 'chat':
           console.log(`${message.senderId}: ${message.message}`)
-          this.onNewOwnMessage(message.message)
+          this.receiveMessage(message)
           break
         case 'assigned_id':
           console.log(`Got assigned ID: ${message.id}`)
@@ -108,9 +108,9 @@ export default {
       this.feed.push(element)
     },
     receiveMessage (message) {
-      const obj = JSON.parse(message)
       const newMesssage = {
-        contents: obj.message,
+        id: message.senderId,
+        contents: message.message,
         date: moment().format('HH:mm:ss')
       }
 

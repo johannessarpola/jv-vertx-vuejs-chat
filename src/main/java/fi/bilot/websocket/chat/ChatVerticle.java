@@ -1,17 +1,18 @@
 package fi.bilot.websocket.chat;
 
-import fi.bilot.vertx.MainVerticle;
 import fi.bilot.websocket.chat.types.AssignedId;
-import fi.bilot.websocket.chat.types.ChatMessage;
+import fi.bilot.websocket.chat.types.ChatBusMessage;
+import fi.bilot.websocket.chat.types.InternalMessage;
 import fi.bilot.websocket.chat.types.InboundMessage;
+import fi.bilot.websocket.chat.types.Room;
 import fi.bilot.websocket.chat.types.User;
-import fi.bilot.websocket.chat.types.UserJoined;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
@@ -21,24 +22,24 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
-import java.util.Set;
-
 /**
  * Johannes on 18.3.2020.
  */
 public class ChatVerticle extends AbstractVerticle {
 
-  private ChatMediator cm;
+  private ChatRooms rooms;
+  private ChatBus bus;
 
   @Override
   public void init(Vertx vertx, Context context) {
+    this.rooms = new ChatRooms();
+    this.bus = new ChatBus(vertx.eventBus());
     super.init(vertx, context);
   }
 
   private Router initializeRouter() {
     Router router = Router.router(vertx);
 
-    this.cm = new ChatMediator(vertx.eventBus());
     router.route().handler(
       CorsHandler.create("http://localhost:8080")
         .allowedMethod(io.vertx.core.http.HttpMethod.GET)
@@ -60,17 +61,20 @@ public class ChatVerticle extends AbstractVerticle {
     return (err) -> {
       System.out.println("onExceptions");
       System.out.println(err.getMessage());
-      cm.unregisterUser(roomId, user);
+      rooms.unregisterUser(roomId, user);
       user.getSocket().close();
     };
   }
 
   private Handler<Void> onClose(User user, String roomId) {
     return (err) -> {
-
       System.out.println("onClose");
-      cm.unregisterUser(roomId, user);
+      rooms.unregisterUser(roomId, user);
     };
+  }
+
+  private User newUser(String roomId, ServerWebSocket socket) {
+    return new User(socket, roomId, java.util.UUID.randomUUID().toString());
   }
 
   private void assignedId(User user) {
@@ -86,27 +90,36 @@ public class ChatVerticle extends AbstractVerticle {
 
     router.route("/room/:roomId").handler((routingContext) -> {
       String roomId = routingContext.request().getParam("roomId");
-      System.out.println("Connectino opened to room " + roomId);
       ServerWebSocket socket = routingContext.request().upgrade();
-      User user = new User(socket, roomId, java.util.UUID.randomUUID().toString());
-
-      ReadStream<Buffer> rs = socket;
-      WriteStream<Buffer> ws = socket;
+      User user = newUser(roomId, socket);
 
       assignedId(user);
-      cm.joinRoom(roomId, user);
-      cm.send(roomId, new UserJoined(user.getUserId()));
+      Room room = rooms.joinRoom(roomId, user);
+
+      // TODO There are closed sockets for some reason
+      // TODO There is issue with registering new users as well
 
       socket.exceptionHandler(onExceptions(user, roomId));
       socket.closeHandler(onClose(user, roomId));
 
-      rs.handler((msg) -> {
-        InboundMessage chatMessage = new JsonObject(msg).mapTo(InboundMessage.class);
-        ChatMessage newMessage = new ChatMessage(user.getUserId(), chatMessage.getContents());
-        System.out.println("! Readstream");
-        System.out.println(msg.toString());
-        cm.send(roomId, newMessage);
+      bus.registerConsumer(room.getAddress(), (msg) -> {
+        if(!msg.headers().get("sender").equals(user.getUserId())) {
+          socket.writeTextMessage(new JsonObject(msg.body()).encode());
+        }
       });
+
+      socket.textMessageHandler( (msg) -> {
+        InboundMessage externalMessage = new JsonObject(msg).mapTo(InboundMessage.class);
+        InternalMessage internalMessage = new InternalMessage(user.getUserId(), externalMessage.getContents());
+
+        ChatBusMessage<JsonObject> busMessage = new ChatBusMessage<>(room.getAddress(), user.getUserId(), JsonObject.mapFrom(internalMessage));
+        bus.sendJson(busMessage, (ar) -> {
+          System.out.println("done send");
+        });
+
+      });
+
+
     });
 
     return router;

@@ -7,17 +7,17 @@ import java.util.Set;
 /**
  * Johannes on 20.3.2020.
  */
-public class ChatMessage implements MessageEvent {
+public class InternalMessage implements MessageEvent {
 
   private String senderId;
   private String message;
 
-  public ChatMessage(String user, String message) {
+  public InternalMessage(String user, String message) {
     this.senderId = user;
     this.message = message;
   }
 
-  public ChatMessage() {
+  public InternalMessage() {
   }
 
   public String getSenderId() {

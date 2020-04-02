@@ -20,24 +20,19 @@ import java.util.function.Consumer;
 /**
  *
  */
-public class ChatMediator {
+public class ChatRooms {
 
-  private Map<String, Room> rooms = new ConcurrentHashMap<>();
-  private Map<String, User> users = new ConcurrentHashMap<>();
-  private EventBus eventBus;
+  private Map<String, Room> rooms;
+  private Map<String, User> users;
   private String basePath = "room";
 
-  public ChatMediator(EventBus eventBus) {
-    this.eventBus = eventBus;
+  public ChatRooms() {
+    this.rooms = new ConcurrentHashMap<>();
+    this.users = new ConcurrentHashMap<>();
   }
 
-  private String roomPath(String roomId) {
+  public String roomPath(String roomId) {
     return String.format("%s_%s", basePath, roomId);
-  }
-
-  public void registerUser(String roomId, User user) {
-    addUser(user);
-    this.rooms.get(roomId).addUser(user.getUserId());
   }
 
   private void addUser(User user) {
@@ -48,29 +43,17 @@ public class ChatMediator {
     users.remove(user.getUserId());
   }
 
-  private void registerConsumer(Room room, User user) {
-    this.eventBus.consumer(room.getAddress()).handler((msg) -> {
-      System.out.println("consumer");
-      System.out.println(msg.body().toString());
-      room.getUsers().forEach((uid) -> {
-        if (!uid.equals(user.getUserId())) {
-          users.get(uid).getSocket().writeTextMessage(msg.body().toString());
-        }
-      });
-    });
-  }
-
-  public void joinRoom(String roomId, User user) {
+  public Room joinRoom(String roomId, User user) {
     addUser(user);
-    Room room;
     if (rooms.containsKey(roomId)) {
-      room = rooms.get(roomId);
+      Room room = rooms.get(roomId);
       room.addUser(user.getUserId());
+      return room;
     } else {
-      room = new Room(roomId, roomPath(roomId));
+      Room room = new Room(roomId, roomPath(roomId));
       room.addUser(user.getUserId());
       rooms.put(roomId, room);
-      registerConsumer(room, user);
+      return room;
     }
   }
 
@@ -79,13 +62,6 @@ public class ChatMediator {
       rooms.get(roomId).removeUser(user.getUserId());
     }
     removeUser(user);
-  }
-
-  public void send(String roomId, ToJson jsonMessage) {
-    Room room = rooms.getOrDefault(roomId, null);
-    if (room != null) {
-      this.eventBus.send(room.getAddress(), jsonMessage.json());
-    }
   }
 
 }
