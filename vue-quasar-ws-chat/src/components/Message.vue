@@ -1,11 +1,11 @@
 <template>
   <div
-    class="message--own"> <!-- TODO Boolean to check if own --> 
-    <div class="message__date">
+    class="message"> <!-- TODO Boolean to check if own --> 
+    <div class="message-date">
       {{ date }}
     </div>
-    <div class="message__contents">
-      {{ contents }}
+    <div class="message-contents">
+      {{ author }}: {{ contents }}
     </div>
   </div>
 </template>
@@ -20,9 +20,9 @@ export default {
       default: '16:30:00',
       required: false
     },
-    own: {
-      type: Boolean,
-      default: false,
+    author: {
+      type: String,
+      default: '',
       required: false
     },
     contents: {

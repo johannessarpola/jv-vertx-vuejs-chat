@@ -8,6 +8,7 @@
       class="messages-list-item">
       <message
         :date="message.date"
+        :author="message.id"
         :contents="message.contents" />
     </div>
   </transition-group>
