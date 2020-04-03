@@ -28,6 +28,6 @@ public class ChatBus {
   }
 
   public void registerConsumer(String address, Handler<Message<String>> handler) {
-    this.eventBus.consumer( address, handler );
+    this.eventBus.localConsumer( address, handler );
   }
 }

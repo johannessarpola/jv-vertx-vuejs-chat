@@ -103,7 +103,7 @@ public class ChatVerticle extends AbstractVerticle {
       socket.closeHandler(onClose(user, roomId));
 
       bus.registerConsumer(room.getAddress(), (msg) -> {
-        if(!msg.headers().get("sender").equals(user.getUserId())) {
+        if(!msg.headers().get("sender").equals(user.getUserId()) && !socket.isClosed()) {
           socket.writeTextMessage(new JsonObject(msg.body()).encode());
         }
       });
