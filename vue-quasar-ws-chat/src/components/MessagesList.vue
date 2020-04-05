@@ -1,38 +1,38 @@
 <template>
-  <transition-group
-    name="messages-list"
-    tag="div">
-    <div
-      v-for="(message, index) in feed"
-      :key="index"
-      class="messages-list-item">
-      <message
-        :date="message.date"
-        :author="message.id"
-        :contents="message.contents" />
-    </div>
-  </transition-group>
+  <section class="messages">
+    <transition-group name="messages-list" tag="div">
+      <div v-for="(message, index) in feed" :key="index" class="messages-list-item row">
+        <message :date="message.date" :author="message.id" :contents="message.contents" />
+      </div>
+    </transition-group>
+  </section>
 </template>
+
+<style>
+  .messages {
+    width: 100%;
+  }
+</style>
 <script>
-import Message from './Message.vue'
+import Message from "./Message.vue";
 export default {
-  name: 'MessagesList',
+  name: "MessagesList",
   components: {
-    Message,
+    Message
   },
   props: {
     feed: {
       type: Array,
-      default: function () {
-        return []
+      default: function() {
+        return [];
       },
       required: false
     },
     authorId: {
       type: String,
-      default: '',
+      default: "",
       required: false
     }
   }
-}
+};
 </script>

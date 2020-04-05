@@ -1,34 +1,33 @@
 <template>
   <div class="input__field">
-    <input
-      :value="value"
-      type="text"
+    <q-input
       name="message"
+      v-model="text"
+      label="Type message..."
       aria-placeholder="Type message..."
-      placeholder="Type message..."
       autofocus
       @input="$emit('input', $event.target.value)"
-      @keyup.enter.prevent="send"><br>
+      @keyup.enter.prevent="send"
+    />
   </div>
-
 </template>
 
 <script>
 export default {
-  name: 'InputField',
+  name: "InputField",
   props: {
     value: {
       type: String,
-      default: '',
+      default: "",
       required: false
     }
   },
   methods: {
-    send (event) {
-      this.$emit('newOwnMessage')
+    send(event) {
+      this.$emit("newOwnMessage");
     }
   }
-}
+};
 </script>
 
 <style>
