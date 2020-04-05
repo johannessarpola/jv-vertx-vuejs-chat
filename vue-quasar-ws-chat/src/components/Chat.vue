@@ -2,15 +2,15 @@
 <template>
   <div class="vue-chat">
     <section class="window">
-      <header class="window__header__container">
-        <slot name="header">Chat</slot>
+      <header class="">
+        <h2> Chat </h2>
       </header>
-      <section id="window__messages__container" class="window__messages__container">
+      <section id="" class="">
         <slot>
           <messages-list :feed="feed" :author-id="authorId" class="messages-list" />
         </slot>
       </section>
-      <div class="window__input__container">
+      <div class="">
         <slot name="input-container">
           <input-container @newOwnMessage="onNewOwnMessage" />
         </slot>
