@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <Chat />
+    <Chat :room='1' />
   </q-page>
 
 </template>

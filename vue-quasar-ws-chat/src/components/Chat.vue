@@ -4,128 +4,161 @@
     <header class>
       <h2>Chat</h2>
     </header>
-    <slot>
-      <messages-list :feed="feed" :author-id="authorId" />
-    </slot>
-    <div class>
-      <slot name="input">
-        <text-input @newOwnMessage="onNewOwnMessage" />
-      </slot>
+    <div>
+      <q-btn label="Start chat" color="primary" @click="chatDialog = true" />
     </div>
+    <q-dialog v-model="chatDialog" @hide="clear">
+      <q-card style="width: 700px; max-width: 80vw;">
+        <q-card-section>
+          <div class="text-h6">Chatting in room {{ this.room }}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <slot>
+            <messages-list id="messages-area" :feed="feed" :author-id="authorId" />
+          </slot>
+          <div class>
+            <slot name="input">
+              <text-input @newOwnMessage="onNewOwnMessage" />
+            </slot>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn flat label="Close" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
+<style scoped>
+.vue-chat {
+  min-width: 420px;
+}
+</style>
 <script>
-import moment from 'moment'
-import MessagesList from './MessagesList'
-import TextInput from './TextInput'
+import moment from "moment";
+import MessagesList from "./MessagesList";
+import TextInput from "./TextInput";
+import { scroll } from "quasar";
+const { getScrollHeight, getScrollTarget, setScrollPosition } = scroll;
 
 export default {
-  name: 'Chat',
+  name: "Chat",
   components: {
     MessagesList,
     TextInput
   },
   props: {
+    room: {
+      type: String,
+      default: "1",
+      required: true
+    },
     address: {
       type: String,
-      default: 'ws://localhost:9003/chat/room/1',
+      default: "ws://localhost:9003/chat/room/1",
       required: true
     },
     initialFeed: {
       type: Array,
-      default: function () {
-        return []
+      default: function() {
+        return [];
       },
       required: false
     },
     newMessage: {
       type: Object,
-      default: function () {
-        return {}
+      default: function() {
+        return {};
       },
       required: false
     }
   },
-  data: function () {
-    const socket = new WebSocket('ws://localhost:9003/chat/room/1')
+  data: function() {
+    const socket = new WebSocket("ws://localhost:9003/chat/room/1");
     return {
+      chatDialog: false,
       feed: [],
       socket: socket,
-      authorId: '0'
-    }
+      authorId: "0"
+    };
   },
   watch: {
-    newMessage: function (newValue, oldValue) {
-      this.pushToFeed(newValue)
+    newMessage: function(newValue, oldValue) {
+      this.pushToFeed(newValue);
       // scrollToBottom()
     }
   },
-  mounted () {
-    console.log('Started socket')
-    this.socket.onmessage = this.messageHandler
-    this.feed = this.initialFeed
-    this.authorId = this.initialAuthorId
+  mounted() {
+    console.log("Started socket");
+    this.socket.onmessage = this.messageHandler;
+    this.feed = this.initialFeed;
+    this.authorId = this.initialAuthorId;
   },
   methods: {
-    messageHandler (event) {
-      console.log(event)
-      const message = JSON.parse(event.data)
+    messageHandler(event) {
+      console.log(event);
+      const message = JSON.parse(event.data);
 
       switch (message.type) {
-        case 'chat':
-          console.log(`${message.senderId}: ${message.message}`)
-          this.receiveMessage(message)
-          break
-        case 'assigned_id':
-          console.log(`Got assigned ID: ${message.id}`)
-          this.assignedId(message)
-          break
-        case 'user_joined':
-          this.welcome(message)
-          console.log(`New user joined room with id ${message.id}`)
-          break
+        case "chat":
+          console.log(`${message.senderId}: ${message.message}`);
+          this.receiveMessage(message);
+          break;
+        case "assigned_id":
+          console.log(`Got assigned ID: ${message.id}`);
+          this.assignedId(message);
+          break;
+        case "user_joined":
+          this.welcome(message);
+          console.log(`New user joined room with id ${message.id}`);
+          break;
       }
     },
-    assignedId (m) {
-      console.log('assignedId')
-      this.authorId = m.id
+    assignedId(m) {
+      console.log("assignedId");
+      this.authorId = m.id;
     },
-    welcome (m) {
-      console.log('welcome')
+    welcome(m) {
+      console.log("welcome");
       const message = {
-        id: 'Server',
+        id: "Server",
         contents: `New user joined room with ID: ${m.id}`,
-        date: moment().format('HH:mm:ss')
-      }
-      this.pushToFeed(message)
+        date: moment().format("HH:mm:ss")
+      };
+      this.pushToFeed(message);
     },
-    pushToFeed (element) {
-      this.feed.push(element)
-      this.$emit('onNewMessage')
+    pushToFeed(element) {
+      this.feed.push(element);
     },
-    receiveMessage (message) {
+    receiveMessage(message) {
       const newMesssage = {
         id: message.senderId,
         contents: message.message,
-        date: moment().format('HH:mm:ss')
-      }
+        date: moment().format("HH:mm:ss")
+      };
 
-      this.pushToFeed(newMesssage)
+      this.pushToFeed(newMesssage);
     },
-    onNewOwnMessage (message) {
+    clear (ev) {
+      console.log("clear");
+      this.feed = [];
+    },
+    onNewOwnMessage(message) {
       const newOwnMessage = {
         id: this.authorId,
         contents: message,
-        date: moment().format('HH:mm:ss')
-      }
+        date: moment().format("HH:mm:ss")
+      };
 
-      const json = JSON.stringify(newOwnMessage)
-      console.log('onNewOwnMessage')
-      console.log(json)
-      this.socket.send(json)
-      this.pushToFeed(newOwnMessage)
+      const json = JSON.stringify(newOwnMessage);
+      console.log("onNewOwnMessage");
+      console.log(json);
+      this.socket.send(json);
+      this.pushToFeed(newOwnMessage);
     }
   }
-}
+};
 </script>
