@@ -1,20 +1,18 @@
 <template>
-  <div
-    class="input__button"
-    @click="send">
-    Send
+  <div>
+    <q-btn color="white"  icon="mail"  @click="send" text-color="black" label="Send" />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'InputButton',
+  name: "InputButton",
   methods: {
-    send (event) {
-      this.$emit('newOwnMessage')
+    send(event) {
+      this.$emit("newOwnMessage");
     }
   }
-}
+};
 </script>
 
 <style>

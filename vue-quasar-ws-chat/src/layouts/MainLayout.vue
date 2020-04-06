@@ -30,13 +30,13 @@
           header
           class="text-grey-8"
         >
-          Essential Links
+          Actions
         </q-item-label>
-        <EssentialLink
+<!--         <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
           v-bind="link"
-        />
+        /> -->
       </q-list>
     </q-drawer>
 
