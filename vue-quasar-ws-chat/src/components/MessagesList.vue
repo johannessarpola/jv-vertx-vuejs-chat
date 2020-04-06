@@ -1,20 +1,20 @@
 <template>
   <section class="messages">
-    <transition-group name="messages-list" tag="div">
-      <div v-for="(message, index) in feed" :key="index" class="messages-list-item row">
-        <message :date="message.date" :author="message.id" :contents="message.contents" />
-      </div>
-    </transition-group>
+    <q-scroll-area style="height: 330px; max-width: 75%;">
+      <transition-group name="messages-list" tag="div">
+        <div v-for="(message, index) in feed" :key="index" class="messages-list-item">
+          <message :date="message.date" :author="message.id" :contents="message.contents"/>
+        </div>
+      </transition-group>
+    </q-scroll-area>
   </section>
 </template>
 
-<style>
-  .messages {
-    width: 100%;
-  }
-</style>
 <script>
 import Message from "./Message.vue";
+import { scroll } from 'quasar'
+const { getScrollHeight } = scroll
+
 export default {
   name: "MessagesList",
   components: {
@@ -32,6 +32,12 @@ export default {
       type: String,
       default: "",
       required: false
+    }
+  },
+  methods: {
+    onNewMessage () {
+      console.log("newMessage");
+      this.$refs.scrollArea.scrollTo(getScrollHeight( this.$refs.scrollArea))
     }
   }
 };

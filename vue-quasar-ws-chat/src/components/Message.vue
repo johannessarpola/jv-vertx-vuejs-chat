@@ -1,35 +1,35 @@
 <template>
-  <div
-    class="message"> <!-- TODO Boolean to check if own --> 
-    <div class="message-date">
-      {{ date }}
+  <div class="message q-pa-sm">
+    <div class="text-weight-regular row">
+      <div class="col">{{ author }}</div>
     </div>
-    <div class="message-contents">
-      {{ author }}: {{ contents }}
+    <div class="row">
+      <div class="col-10 text-weight-regular text-body1">{{ contents }}</div>
+      <div class="col text-weight-light text-caption">{{ date }}</div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Message',
+  name: "Message",
   components: {},
   props: {
     date: {
       type: String,
-      default: '16:30:00',
+      default: "16:30:00",
       required: false
     },
     author: {
       type: String,
-      default: '',
+      default: "user",
       required: false
     },
     contents: {
       type: String,
-      default: '',
+      default: "",
       required: false
     }
   }
-}
+};
 </script>
