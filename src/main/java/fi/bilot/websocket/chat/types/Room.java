@@ -9,13 +9,14 @@ import java.util.Set;
  */
 public class Room {
 
+  private static String basePath = "room";
   private String id;
   private String address;
   private Set<String> users;
 
-  public Room(String id, String address) {
+  public Room(String id) {
     this.id = id;
-    this.address = address;
+    this.address = defaultRoomPath(id);
     this.users = new ConcurrentHashSet<>();
   }
 
@@ -42,4 +43,9 @@ public class Room {
   public void setAddress(String address) {
     this.address = address;
   }
+
+  public String defaultRoomPath(String roomId) {
+    return String.format("%s_%s", basePath, roomId);
+  }
+
 }

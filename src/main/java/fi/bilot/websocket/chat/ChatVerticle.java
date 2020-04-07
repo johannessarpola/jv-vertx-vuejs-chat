@@ -11,16 +11,15 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.MessageProducer;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.streams.ReadStream;
-import io.vertx.core.streams.WriteStream;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+
+import java.util.UUID;
 
 /**
  * Johannes on 18.3.2020.
@@ -61,7 +60,8 @@ public class ChatVerticle extends AbstractVerticle {
     return (err) -> {
       System.out.println("onExceptions");
       System.out.println(err.getMessage());
-      rooms.unregisterUser(roomId, user);
+      user.getConsumer().unregister();
+      rooms.removeUser(roomId, user);
       user.getSocket().close();
     };
   }
@@ -69,12 +69,9 @@ public class ChatVerticle extends AbstractVerticle {
   private Handler<Void> onClose(User user, String roomId) {
     return (err) -> {
       System.out.println("onClose");
-      rooms.unregisterUser(roomId, user);
+      user.getConsumer().unregister();
+      rooms.removeUser(roomId, user);
     };
-  }
-
-  private User newUser(String roomId, ServerWebSocket socket) {
-    return new User(socket, roomId, java.util.UUID.randomUUID().toString());
   }
 
   private void assignedId(User user) {
@@ -91,22 +88,25 @@ public class ChatVerticle extends AbstractVerticle {
     router.route("/room/:roomId").handler((routingContext) -> {
       String roomId = routingContext.request().getParam("roomId");
       ServerWebSocket socket = routingContext.request().upgrade();
-      User user = newUser(roomId, socket);
+      Room room = new Room(roomId);
 
+      String userId = UUID.randomUUID().toString();
+
+      MessageConsumer<String> consumer = bus.registerConsumer(room.getAddress(), (msg) -> {
+        if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
+          socket.writeTextMessage(new JsonObject(msg.body()).encode());
+        }
+      });
+
+      User user = new User(socket, room.getId(), userId, consumer);
       assignedId(user);
-      Room room = rooms.joinRoom(roomId, user);
+      rooms.joinRoom(room, user);
 
       // TODO There are closed sockets for some reason
       // TODO There is issue with registering new users as well
 
       socket.exceptionHandler(onExceptions(user, roomId));
       socket.closeHandler(onClose(user, roomId));
-
-      bus.registerConsumer(room.getAddress(), (msg) -> {
-        if(!msg.headers().get("sender").equals(user.getUserId()) && !socket.isClosed()) {
-          socket.writeTextMessage(new JsonObject(msg.body()).encode());
-        }
-      });
 
       socket.textMessageHandler( (msg) -> {
         InboundMessage externalMessage = new JsonObject(msg).mapTo(InboundMessage.class);
@@ -138,13 +138,15 @@ public class ChatVerticle extends AbstractVerticle {
     Vertx vertx = Vertx.vertx();
     Router router = Router.router(vertx);
 
+    ChatVerticle chatVerticle = new ChatVerticle();
+    vertx.deployVerticle(chatVerticle, (rs) -> {
+      router.mountSubRouter("/chat", chatVerticle.createRouter());
+    });
+
     vertx.createHttpServer().requestHandler(router).listen(9003, http -> {
       if (http.succeeded()) {
         HttpServer server = http.result();
-        ChatVerticle chatVerticle = new ChatVerticle();
-        vertx.deployVerticle(chatVerticle, (rs) -> {
-          router.mountSubRouter("/chat", chatVerticle.createRouter());
-        });
+        System.out.println("Server running");
       }
     });
   }

@@ -7,7 +7,7 @@
     <div>
       <q-btn label="Start chat" color="primary" @click="chatDialog = true" />
     </div>
-    <q-dialog v-model="chatDialog" @hide="clear">
+    <q-dialog v-model="chatDialog" @hide="close" @show="open">
       <q-card style="width: 700px; max-width: 80vw;">
         <q-card-section>
           <div class="text-h6">Chatting in room {{ this.room }}</div>
@@ -51,16 +51,16 @@ export default {
     TextInput
   },
   props: {
-    room: {
-      type: String,
-      default: "1",
-      required: true
-    },
-    address: {
-      type: String,
-      default: "ws://localhost:9003/chat/room/1",
-      required: true
-    },
+    // room: {
+    //   type: String,
+    //   default: "1",
+    //   required: true
+    // },
+    // address: {
+    //   type: String,
+    //   default: "ws://localhost:9003/chat/room/1",
+    //   required: true
+    // },
     initialFeed: {
       type: Array,
       default: function() {
@@ -77,11 +77,11 @@ export default {
     }
   },
   data: function() {
-    const socket = new WebSocket("ws://localhost:9003/chat/room/1");
     return {
+      room: '1',
       chatDialog: false,
       feed: [],
-      socket: socket,
+      socket: {},
       authorId: "0"
     };
   },
@@ -92,12 +92,16 @@ export default {
     }
   },
   mounted() {
-    console.log("Started socket");
-    this.socket.onmessage = this.messageHandler;
+    console.log("mounted");
     this.feed = this.initialFeed;
     this.authorId = this.initialAuthorId;
   },
   methods: {
+    connectToSocket() {
+      const socket = new WebSocket("ws://localhost:9003/chat/room/" + this.room);
+      socket.onmessage = this.messageHandler;
+      this.socket = socket;
+    },
     messageHandler(event) {
       console.log(event);
       const message = JSON.parse(event.data);
@@ -142,8 +146,13 @@ export default {
 
       this.pushToFeed(newMesssage);
     },
-    clear (ev) {
+    open(ev) {
+      console.log("open");
+      this.connectToSocket()
+    },
+    close(ev) {
       console.log("clear");
+      this.socket.close();
       this.feed = [];
     },
     onNewOwnMessage(message) {

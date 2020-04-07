@@ -29,6 +29,7 @@ export default {
   },
   methods: {
     onNewOwnMessage () {
+      console.log("button.onNewOwnMessage")
       if ((!this.message || this.message === '')) {
         return
       }

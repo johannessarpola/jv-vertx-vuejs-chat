@@ -24,15 +24,10 @@ public class ChatRooms {
 
   private Map<String, Room> rooms;
   private Map<String, User> users;
-  private String basePath = "room";
 
   public ChatRooms() {
     this.rooms = new ConcurrentHashMap<>();
     this.users = new ConcurrentHashMap<>();
-  }
-
-  public String roomPath(String roomId) {
-    return String.format("%s_%s", basePath, roomId);
   }
 
   private void addUser(User user) {
@@ -43,21 +38,19 @@ public class ChatRooms {
     users.remove(user.getUserId());
   }
 
-  public Room joinRoom(String roomId, User user) {
+  public Room joinRoom(Room room, User user) {
     addUser(user);
-    if (rooms.containsKey(roomId)) {
-      Room room = rooms.get(roomId);
+    if (rooms.containsKey(room.getId())) {
       room.addUser(user.getUserId());
       return room;
     } else {
-      Room room = new Room(roomId, roomPath(roomId));
       room.addUser(user.getUserId());
-      rooms.put(roomId, room);
+      rooms.put(room.getId(), room);
       return room;
     }
   }
 
-  public void unregisterUser(String roomId, User user) {
+  public void removeUser(String roomId, User user) {
     if (rooms.containsKey(roomId)) {
       rooms.get(roomId).removeUser(user.getUserId());
     }

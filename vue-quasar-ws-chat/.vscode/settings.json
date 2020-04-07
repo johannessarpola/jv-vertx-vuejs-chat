@@ -8,5 +8,6 @@
         "statusBarItem.hoverBackground": "#6f6c58",
         "statusBar.foreground": "#15202b"
     },
-    "peacock.color": "#8b886f"
+    "peacock.color": "#8b886f",
+    "vetur.format.defaultFormatter.js": "prettier-eslint"
 }
