@@ -5,7 +5,11 @@
       <h2>Chat</h2>
     </header>
     <div>
-      <q-btn label="Start chat" color="primary" @click="chatDialog = true" />
+      <p class="text-body1">Write a room you would like join to</p>
+      <div class="row">
+        <q-input borderless v-model="room" label="Room" class="q-mr-sm col-7" :rules="[val => !!val || 'Room is required.']" />
+        <q-btn label="Start to chat" class="col-4" color="positive" @click="chatDialog = true" />
+      </div>
     </div>
     <q-dialog v-model="chatDialog" @hide="close" @show="open">
       <q-card style="width: 700px; max-width: 80vw;">
@@ -78,7 +82,7 @@ export default {
   },
   data: function() {
     return {
-      room: '1',
+      room: '',
       chatDialog: false,
       feed: [],
       socket: {},
