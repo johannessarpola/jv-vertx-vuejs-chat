@@ -7,29 +7,30 @@
     <div>
       <p class="text-body1">Write a room you would like join to</p>
       <div class="row">
-        <q-input borderless v-model="room" label="Room" class="q-mr-sm col-7" :rules="[val => !!val || 'Room is required.']" />
+        <q-input
+          borderless
+          v-model="room"
+          label="Room"
+          class="q-mr-sm col-7"
+          :rules="[val => !!val || 'Room is required.']"
+        />
         <q-btn label="Start to chat" class="col-4" color="positive" @click="chatDialog = true" />
       </div>
     </div>
-    <q-dialog v-model="chatDialog" @hide="close" @show="open">
-      <q-card style="width: 700px; max-width: 80vw;">
+    <q-dialog v-model="chatDialog" @hide="close" @show="open" full-height>
+      <q-card class="full-height column" style="width: 700px;">
         <q-card-section>
           <div class="text-h6">Chatting in room {{ this.room }}</div>
         </q-card-section>
 
-        <q-card-section class="q-pt-none">
+        <q-card-section class="col q-pt-none">
           <slot>
             <messages-list id="messages-area" :feed="feed" :author-id="authorId" />
           </slot>
-          <div class>
-            <slot name="input">
-              <text-input @newOwnMessage="onNewOwnMessage" />
-            </slot>
-          </div>
         </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn flat label="Close" v-close-popup />
+        <q-card-actions align="right" class="q-mx-lg bg-white text-teal">
+          <text-input class="col-8" @newOwnMessage="onNewOwnMessage" />
+          <q-btn class="col-4" flat label="Close" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -55,16 +56,6 @@ export default {
     TextInput
   },
   props: {
-    // room: {
-    //   type: String,
-    //   default: "1",
-    //   required: true
-    // },
-    // address: {
-    //   type: String,
-    //   default: "ws://localhost:9003/chat/room/1",
-    //   required: true
-    // },
     initialFeed: {
       type: Array,
       default: function() {

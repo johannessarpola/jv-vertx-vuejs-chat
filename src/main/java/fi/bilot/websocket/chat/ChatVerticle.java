@@ -102,9 +102,6 @@ public class ChatVerticle extends AbstractVerticle {
       assignedId(user);
       rooms.joinRoom(room, user);
 
-      // TODO There are closed sockets for some reason
-      // TODO There is issue with registering new users as well
-
       socket.exceptionHandler(onExceptions(user, roomId));
       socket.closeHandler(onClose(user, roomId));
 

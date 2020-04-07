@@ -2,7 +2,7 @@
   <section class="messages">
       <transition-group name="messages-list" tag="div">
         <div v-for="(message, index) in feed" :key="index" class="messages-list-item">
-          <message :date="message.date" :author="message.id" :contents="message.contents"/>
+          <message :own="authorId == message.id" :date="message.date" :author="message.id" :contents="message.contents"/>
         </div>
       </transition-group>
   </section>

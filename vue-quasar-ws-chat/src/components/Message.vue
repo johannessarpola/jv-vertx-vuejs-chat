@@ -1,12 +1,16 @@
 <template>
   <div class="message q-pa-sm">
-    <div class="text-weight-regular row">
-      <div class="col">{{ author }}</div>
-    </div>
-    <div class="row">
-      <div class="col-10 text-weight-regular text-body1">{{ contents }}</div>
-      <div class="col text-weight-light text-caption">{{ date }}</div>
-    </div>
+        <q-chat-message v-if="own"
+        name="You"
+        :text="[contents]"
+        :stamp="date"
+        sent
+      />
+      <q-chat-message v-else
+        :name="author"
+        :text="[contents]"
+        :stamp="date"
+      />
   </div>
 </template>
 
@@ -15,6 +19,11 @@ export default {
   name: "Message",
   components: {},
   props: {
+    own: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
     date: {
       type: String,
       default: "16:30:00",
