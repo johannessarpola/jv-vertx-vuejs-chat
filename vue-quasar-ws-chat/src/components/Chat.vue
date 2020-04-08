@@ -24,9 +24,14 @@
         </q-card-section>
 
         <q-card-section class="col q-pt-none">
-          <slot>
-            <messages-list id="messages-area" :feed="feed" :author-id="authorId" />
-          </slot>
+          <q-scroll-area class="full-height"
+                :thumb-style="thumbStyle"
+      :bar-style="barStyle"
+      >
+            <slot>
+              <messages-list id="messages-area" :feed="feed" :author-id="authorId" />
+            </slot>
+          </q-scroll-area>
         </q-card-section>
         <q-card-actions align="right" class="q-mx-lg bg-white text-teal">
           <text-input class="col-8" @newOwnMessage="onNewOwnMessage" />
@@ -73,11 +78,22 @@ export default {
   },
   data: function() {
     return {
-      room: '',
+      room: "",
       chatDialog: false,
       feed: [],
       socket: {},
-      authorId: "0"
+      authorId: "0",
+      thumbStyle: {
+        borderRadius: '5px',
+        backgroundColor: '#027be3',
+        width: '6px',
+        opacity: 0.75
+      },
+      barStyle: {
+        backgroundColor: '#027be3',
+        width: '6px',
+        opacity: 0.2
+      }
     };
   },
   watch: {
@@ -93,7 +109,9 @@ export default {
   },
   methods: {
     connectToSocket() {
-      const socket = new WebSocket("ws://localhost:9003/chat/room/" + this.room);
+      const socket = new WebSocket(
+        "ws://localhost:9003/chat/room/" + this.room
+      );
       socket.onmessage = this.messageHandler;
       this.socket = socket;
     },
@@ -143,7 +161,7 @@ export default {
     },
     open(ev) {
       console.log("open");
-      this.connectToSocket()
+      this.connectToSocket();
     },
     close(ev) {
       console.log("clear");
