@@ -18,11 +18,11 @@ ext {
 application {
     mainClassName = 'io.vertx.core.Launcher'
 }
-def mainVerticleName = 'fi.bilot.vertx.MainVerticle'
+def mainVerticleName = 'fi.johannes.bilot.vertx.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
-group = 'fi.bilot'
+group = 'fi.johannes.bilot'
 version = '0.1-SNAPSHOT'
 sourceCompatibility = 11
 targetCompatibility = 11
