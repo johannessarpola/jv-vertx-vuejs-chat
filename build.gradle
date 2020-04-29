@@ -15,10 +15,18 @@ ext {
     junitJupiterEngineVersion = '5.4.0'
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/main/resources", "src/main/configs"
+        }
+    }
+}
+
 application {
     mainClassName = 'io.vertx.core.Launcher'
 }
-def mainVerticleName = 'fi.johannes.bilot.vertx.MainVerticle'
+def mainVerticleName = 'fi.johannes.vertx.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 

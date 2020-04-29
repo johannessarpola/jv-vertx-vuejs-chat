@@ -77,7 +77,8 @@ export default {
       chatDialog: false,
       feed: [],
       socket: {},
-      authorId: "0"
+      authorId: "0",
+      displayName: "undefined"
     };
   },
   watch: {
@@ -103,11 +104,11 @@ export default {
 
       switch (message.type) {
         case "chat":
-          console.log(`${message.senderId}: ${message.message}`);
+          console.log(`${message.senderId}-${message.senderDisplayName}: ${message.message}`);
           this.receiveMessage(message);
           break;
         case "assigned_id":
-          console.log(`Got assigned ID: ${message.id}`);
+          console.log(`Got assigned ID: ${message.id}: ${message.displayName}`);
           this.assignedId(message);
           break;
         case "user_joined":
@@ -119,6 +120,7 @@ export default {
     assignedId(m) {
       console.log("assignedId");
       this.authorId = m.id;
+      this.displayName = m.displayName;
     },
     welcome(m) {
       console.log("welcome");
@@ -135,6 +137,7 @@ export default {
     receiveMessage(message) {
       const newMesssage = {
         id: message.senderId,
+        displayName: message.senderDisplayName,
         contents: message.message,
         date: moment().format("HH:mm:ss")
       };
@@ -153,6 +156,7 @@ export default {
     onNewOwnMessage(message) {
       const newOwnMessage = {
         id: this.authorId,
+        displayName: this.displayName,
         contents: message,
         date: moment().format("HH:mm:ss")
       };
