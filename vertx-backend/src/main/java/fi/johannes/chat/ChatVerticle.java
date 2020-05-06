@@ -2,6 +2,7 @@ package fi.johannes.chat;
 
 import fi.johannes.chat.animals.AnimalsInstance;
 import fi.johannes.chat.animals.types.Animal;
+import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.chat.types.AssignedId;
 import fi.johannes.chat.types.ChatBusMessage;
 import fi.johannes.chat.types.InternalMessage;
@@ -151,6 +152,11 @@ public class ChatVerticle extends AbstractVerticle {
     ChatVerticle chatVerticle = new ChatVerticle();
     vertx.deployVerticle(chatVerticle, (rs) -> {
       router.mountSubRouter("/chat", chatVerticle.createRouter());
+    });
+
+    ChatHistoryVerticle chatHistory = new ChatHistoryVerticle();
+    vertx.deployVerticle(chatVerticle, (rs) -> {
+      router.mountSubRouter("/history", chatHistory.createRouter());
     });
 
     vertx.createHttpServer().requestHandler(router).listen(9003, http -> {

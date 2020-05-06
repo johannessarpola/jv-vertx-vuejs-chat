@@ -1,4 +1,4 @@
-package fi.johannes.chat.animals.api;
+package fi.johannes.chat.animals.db;
 
 import fi.johannes.chat.animals.types.Animal;
 

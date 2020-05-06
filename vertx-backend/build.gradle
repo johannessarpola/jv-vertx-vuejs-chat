@@ -44,6 +44,8 @@ dependencies {
     compile 'io.vertx:vertx-reactive-streams:3.8.5'
     compile 'io.vertx:vertx-rx-java2:3.9.0'
     compile 'io.vertx:vertx-web-client:3.8.5'
+    compile 'io.vertx:vertx-kafka-client:3.9.0'
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.5.0'
     deployerJars "org.apache.maven.wagon:wagon-webdav:1.0-beta-2"
     implementation "io.vertx:vertx-web:$vertxVersion"
 
@@ -55,6 +57,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.json', name: 'json', version: '20180130'
     testCompile "org.mockito:mockito-core:2.+"
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 shadowJar {
@@ -75,5 +84,9 @@ test {
 }
 
 run {
-    args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+    args = ['run', mainVerticleName,
+            "--redeploy=$watchForChange",
+            "--launcher-class=$mainClassName",
+            "--on-redeploy=$doOnChange",
+            "--java-opts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
 }

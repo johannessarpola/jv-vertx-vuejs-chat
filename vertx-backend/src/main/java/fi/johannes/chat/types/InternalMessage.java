@@ -1,8 +1,11 @@
 package fi.johannes.chat.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Johannes on 20.3.2020.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InternalMessage implements MessageEvent {
 
   private String senderId;

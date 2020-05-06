@@ -1,6 +1,6 @@
 package fi.johannes.chat.animals;
 
-import fi.johannes.chat.animals.api.AnimalsRepository;
+import fi.johannes.chat.animals.db.AnimalsRepository;
 import fi.johannes.chat.animals.db.impl.AnimalsDBImpl;
 import fi.johannes.chat.animals.types.Animal;
 

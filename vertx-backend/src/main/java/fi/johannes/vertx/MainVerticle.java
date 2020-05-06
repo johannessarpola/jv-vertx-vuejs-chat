@@ -1,5 +1,6 @@
 package fi.johannes.vertx;
 
+import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.commerce.ProductVerticle;
 import fi.johannes.utils.EventStreamingEndpoint;
 import fi.johannes.stocks.StockVerticle;
@@ -53,6 +54,12 @@ public class MainVerticle extends AbstractVerticle implements EventStreamingEndp
           } else {
             System.out.println("Could not start ChatVerticle");
           }
+        });
+
+        // Chat history
+        ChatHistoryVerticle chatHistory = new ChatHistoryVerticle();
+        vertx.deployVerticle(chatHistory, (rs) -> {
+          router.mountSubRouter("/history", chatHistory.createRouter());
         });
 
         System.out.println("HTTP server started on port 8888");
