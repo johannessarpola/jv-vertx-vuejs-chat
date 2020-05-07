@@ -1,6 +1,5 @@
 package fi.johannes.chat.history;
 
-import fi.johannes.chat.types.ChatBusMessage;
 import fi.johannes.chat.types.InternalMessage;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -15,6 +14,8 @@ import java.util.stream.Stream;
 /**
  * Johannes on 1.5.2020.
  */
+
+/*
 public class MessageThread {
 
   private final int limit;
@@ -63,3 +64,5 @@ public class MessageThread {
     });
   }
 }
+
+ */

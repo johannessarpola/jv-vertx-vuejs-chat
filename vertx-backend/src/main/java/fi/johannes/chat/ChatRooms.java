@@ -2,6 +2,7 @@ package fi.johannes.chat;
 
 import fi.johannes.chat.types.Room;
 import fi.johannes.chat.types.User;
+import io.vertx.core.eventbus.EventBus;
 
 import java.util.Map;
 import java.util.Set;
@@ -12,11 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChatRooms {
 
+  private final ChatRoomsBroker broker;
   private Map<String, Room> rooms;
   private Map<String, User> usersById;
   private Map<String, User> usersByDisplay;
 
-  public ChatRooms() {
+  public ChatRooms(EventBus eventBus) {
+    this.broker = new ChatRoomsBroker(eventBus);
     this.rooms = new ConcurrentHashMap<>();
     this.usersById = new ConcurrentHashMap<>();
     this.usersByDisplay = new ConcurrentHashMap<>();
@@ -48,6 +51,7 @@ public class ChatRooms {
     } else {
       room.addUser(user.getUserId());
       rooms.put(room.getId(), room);
+      broker.newRoom(room.getId());
       return room;
     }
   }
@@ -55,6 +59,10 @@ public class ChatRooms {
   public void removeUser(String roomId, User user) {
     if (rooms.containsKey(roomId)) {
       rooms.get(roomId).removeUser(user.getUserId());
+      if (rooms.get(roomId).getUsers().isEmpty()) {
+        rooms.remove(roomId);
+        this.broker.removedRoom(roomId);
+      }
     }
     removeUser(user);
   }

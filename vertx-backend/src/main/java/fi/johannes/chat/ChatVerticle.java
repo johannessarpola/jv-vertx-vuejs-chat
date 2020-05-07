@@ -4,9 +4,9 @@ import fi.johannes.chat.animals.AnimalsInstance;
 import fi.johannes.chat.animals.types.Animal;
 import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.chat.types.AssignedId;
-import fi.johannes.chat.types.ChatBusMessage;
+import fi.johannes.chat.types.FrontendMessage;
 import fi.johannes.chat.types.InternalMessage;
-import fi.johannes.chat.types.InboundMessage;
+import fi.johannes.chat.types.MessageEvent;
 import fi.johannes.chat.types.Room;
 import fi.johannes.chat.types.User;
 import io.vertx.core.AbstractVerticle;
@@ -35,10 +35,11 @@ public class ChatVerticle extends AbstractVerticle {
 
   private ChatRooms rooms;
   private ChatBus bus;
+  private ChatRoomsBroker broker;
 
   @Override
   public void init(Vertx vertx, Context context) {
-    this.rooms = new ChatRooms();
+    this.rooms = new ChatRooms(vertx.eventBus());
     this.bus = new ChatBus(vertx.eventBus());
     this.animals = AnimalsInstance.getInstance();
     super.init(vertx, context);
@@ -82,14 +83,31 @@ public class ChatVerticle extends AbstractVerticle {
     };
   }
 
+  private void forwardToEventbus(String userId, MessageEvent content) {
+    bus.sendJson(userId, content.getRoomId(), content.json(), (ar) -> {
+      System.out.println("done send");
+    });
+  }
+
   private void assignedId(User user) {
-    user.getSocket().writeTextMessage(new AssignedId(user.getUserId(), user.getDisplayName()).json());
+    MessageEvent me = new AssignedId(user.getUserId(), user.getDisplayName());
+    user.getSocket().writeTextMessage(me.jsonStr());
+    forwardToEventbus(user.getUserId(), me);
+  }
+
+  private Optional<String> getAnimal(String roomId) {
+    Predicate<Animal> onlyUniques = (a) -> !this.rooms.getUserDisplayNames().contains(a.getName());
+    Optional<String> displayName = Optional.ofNullable(this.animals)
+      .map((as) -> as.getAnimal(onlyUniques))
+      .map(Animal::getName);
+    return displayName;
   }
 
   public Router createRouter() {
     Router router = initializeRouter();
 
-    router.route("/test").handler((routingContext) -> {
+    router.route("/healthcheck").handler((routingContext) -> {
+      // TODO Output data
       routingContext.response().end("Chat works!");
     });
 
@@ -97,20 +115,16 @@ public class ChatVerticle extends AbstractVerticle {
       String roomId = routingContext.request().getParam("roomId");
       ServerWebSocket socket = routingContext.request().upgrade();
       Room room = new Room(roomId);
-
       String userId = UUID.randomUUID().toString();
 
+      // Eventbus consumer
       MessageConsumer<String> consumer = bus.registerConsumer(room.getAddress(), (msg) -> {
         if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
           socket.writeTextMessage(new JsonObject(msg.body()).encode());
         }
       });
 
-      Predicate<Animal> onlyUniques = (a) -> !this.rooms.getUserDisplayNames().contains(a.getName());
-      String displayName = Optional.ofNullable(this.animals)
-        .map((as) -> as.getAnimal(onlyUniques))
-        .map(Animal::getName)
-        .orElse(userId);
+      String displayName = getAnimal(roomId).orElse(userId);
 
       User user = new User(socket, room.getId(), userId, consumer, displayName);
       assignedId(user);
@@ -120,17 +134,14 @@ public class ChatVerticle extends AbstractVerticle {
       socket.closeHandler(onClose(user, roomId));
 
       socket.textMessageHandler( (msg) -> {
-        InboundMessage externalMessage = new JsonObject(msg).mapTo(InboundMessage.class);
-        InternalMessage internalMessage = new InternalMessage(user.getUserId(), user.getDisplayName(), externalMessage.getContents());
+        FrontendMessage fm = new JsonObject(msg).mapTo(FrontendMessage.class);
+        InternalMessage im = new InternalMessage(roomId, user.getUserId(), user.getDisplayName(), fm.getContents());
 
-        ChatBusMessage<JsonObject> busMessage = new ChatBusMessage<>(room.getAddress(), user.getUserId(), JsonObject.mapFrom(internalMessage));
-        bus.sendJson(busMessage, (ar) -> {
+        bus.sendJson(user.getUserId(), room.getId(), JsonObject.mapFrom(im), (ar) -> {
           System.out.println("done send");
         });
 
       });
-
-
     });
 
     return router;

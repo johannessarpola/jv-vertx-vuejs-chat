@@ -6,17 +6,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InboundMessage {
+public class FrontendMessage {
 
   private String date;
   private String contents;
 
-  public InboundMessage(String date, String contents) {
+  public FrontendMessage(String date, String contents) {
     this.date = date;
     this.contents = contents;
   }
 
-  public InboundMessage() {
+  public FrontendMessage() {
   }
 
   public String getDate() {

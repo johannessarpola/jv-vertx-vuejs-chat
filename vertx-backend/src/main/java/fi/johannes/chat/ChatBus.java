@@ -1,6 +1,5 @@
 package fi.johannes.chat;
 
-import fi.johannes.chat.types.ChatBusMessage;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -19,10 +18,10 @@ public class ChatBus {
     this.eventBus = eventBus;
   }
 
-  public void sendJson(ChatBusMessage<JsonObject> message, Handler<AsyncResult<Message<JsonObject>>> replyHandler) {
+  public void sendJson(String senderId, String address, JsonObject message, Handler<AsyncResult<Message<JsonObject>>> replyHandler) {
     DeliveryOptions options = new DeliveryOptions();
-    options.addHeader("sender", message.getSenderId());
-    this.eventBus.publish(message.getAddress(), message.getMessage().encode(), options);
+    options.addHeader("sender", senderId);
+    this.eventBus.publish(address, message.encode(), options);
   }
 
   public MessageConsumer<String> registerConsumer(String address, Handler<Message<String>> handler) {
