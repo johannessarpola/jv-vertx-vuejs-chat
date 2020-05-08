@@ -51,7 +51,7 @@ public class ChatRooms {
     } else {
       room.addUser(user.getUserId());
       rooms.put(room.getId(), room);
-      broker.newRoom(room.getId());
+      broker.newRoom(room.getAddress());
       return room;
     }
   }
@@ -60,8 +60,9 @@ public class ChatRooms {
     if (rooms.containsKey(roomId)) {
       rooms.get(roomId).removeUser(user.getUserId());
       if (rooms.get(roomId).getUsers().isEmpty()) {
+        Room room = rooms.get(roomId);
         rooms.remove(roomId);
-        this.broker.removedRoom(roomId);
+        this.broker.removedRoom(room.getAddress());
       }
     }
     removeUser(user);

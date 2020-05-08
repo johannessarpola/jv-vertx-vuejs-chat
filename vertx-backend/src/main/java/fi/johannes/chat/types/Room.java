@@ -1,12 +1,19 @@
 package fi.johannes.chat.types;
 
 import io.vertx.core.impl.ConcurrentHashSet;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Johannes on 26.3.2020.
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Room {
 
   private static String basePath = "room";
@@ -17,15 +24,7 @@ public class Room {
   public Room(String id) {
     this.id = id;
     this.address = defaultRoomPath(id);
-    this.users = new ConcurrentHashSet<>();
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public Set<String> getUsers() {
-    return users;
+    this.users = new HashSet<>();
   }
 
   public void removeUser(String user) {
@@ -34,14 +33,6 @@ public class Room {
 
   public void addUser(String user) {
     this.users.add(user);
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
   }
 
   public String defaultRoomPath(String roomId) {

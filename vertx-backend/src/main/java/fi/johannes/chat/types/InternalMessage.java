@@ -17,10 +17,13 @@ public class InternalMessage implements MessageEvent {
   private String senderId;
   private String senderDisplayName;
   private String message;
+  private String type = "chat";
 
-  @Override
-  public String getType() {
-    return "chat";
+  public InternalMessage(String roomId, String senderId, String senderDisplayName, String message) {
+    this.roomId = roomId;
+    this.senderId = senderId;
+    this.senderDisplayName = senderDisplayName;
+    this.message = message;
   }
 
   @Override

@@ -1,9 +1,6 @@
 package fi.johannes.vertx;
 
 import fi.johannes.chat.history.ChatHistoryVerticle;
-import fi.johannes.commerce.ProductVerticle;
-import fi.johannes.utils.EventStreamingEndpoint;
-import fi.johannes.stocks.StockVerticle;
 import fi.johannes.chat.ChatVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -11,7 +8,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 
-public class MainVerticle extends AbstractVerticle implements EventStreamingEndpoint {
+public class MainVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
@@ -22,28 +19,6 @@ public class MainVerticle extends AbstractVerticle implements EventStreamingEndp
         HttpServer server = http.result();
 
         startPromise.complete();
-
-        // Stocks
-        StockVerticle sv = new StockVerticle();
-        vertx.deployVerticle(sv, (result) -> {
-          if (result.succeeded()) {
-            System.out.println("stocks ok");
-            router.mountSubRouter("/stocks", sv.createRouter());
-          } else {
-            System.out.println("Could not start StockVerticle");
-          }
-        });
-
-        // Products
-        ProductVerticle pv = new ProductVerticle();
-        vertx.deployVerticle(pv, (result) -> {
-          if (result.succeeded()) {
-            System.out.println("products ok");
-            router.mountSubRouter("/products", pv.createRouter());
-          } else {
-            System.out.println("Could not start ProductVerticle");
-          }
-        });
 
         // Chat
         ChatVerticle cv = new ChatVerticle();

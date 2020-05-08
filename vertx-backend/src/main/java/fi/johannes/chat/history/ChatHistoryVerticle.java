@@ -17,6 +17,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.kafka.client.producer.KafkaProducer;
+import io.vertx.kafka.client.producer.KafkaProducerRecord;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -32,6 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatHistoryVerticle extends AbstractVerticle {
 
   private EventBus eventBus;
+  private String kafkaTopic = "messages";
+  private String roomHistorySuffix = "history";
   private String roomsAddedTopic = "rooms.new";
   private String roomsRemovedTopic = "rooms.removed";
   private Map<String, String> kafkaProducerConf;
@@ -59,41 +62,41 @@ public class ChatHistoryVerticle extends AbstractVerticle {
 
   }
 
-  private Envelope<String> newEnvelope(InternalMessage m, String roomId) {
+  private Envelope<String> newEnvelope(InternalMessage m, String roomAddress) {
     final Envelope<String> envelope = Envelope.<String>builder()
       .message(new Message<>(m.getType(), m.getMessage()))
-      .room(new Room("1", "room_1"))
+      .room(new Room(m.getRoomId(), roomAddress))
       .meta(new Meta(Timestamp.from(Instant.now()), "vue-chat"))
       .sender(new Sender(m.getSenderId(), m.getSenderDisplayName()))
       .build();
     return envelope;
   }
 
-  private MessageConsumer<String> newConsumer(String roomId) {
-    return eventBus.<String>consumer(roomId).handler((msg) -> {
-      System.out.println(roomId);
-      System.out.println(msg);
+  private MessageConsumer<String> newConsumer(String roomAddress) {
+    return eventBus.<String>consumer(String.format("%s.%s", roomAddress, roomHistorySuffix)).handler((msg) -> {
+      System.out.println("History consumer: "+roomAddress);
+      System.out.println("Received message: "+msg.body());
       InternalMessage m = new JsonObject(msg.body()).mapTo(InternalMessage.class);
-      Envelope<String> envelope = newEnvelope(m, roomId);
+      Envelope<String> envelope = newEnvelope(m, roomAddress);
 
-      // TODO Just for debugging
-      if (!messages.containsKey(roomId)) {
-        messages.put(roomId, new ArrayList<>());
-      }
-      messages.get(roomId).add(m);
+      KafkaProducerRecord record = KafkaProducerRecord.create(this.kafkaTopic, envelope.json());
+      kafkaProducer.send(record);
 
+      msg.reply(Boolean.TRUE);
     });
   }
 
-  private void registerNewRoom(String roomId) {
-    MessageConsumer<String> consumer = newConsumer(roomId);
-    this.consumers.put(roomId, consumer);
+  private void registerNewRoom(String roomAddress) {
+    System.out.println("Registered room: " + roomAddress);
+    MessageConsumer<String> consumer = newConsumer(roomAddress);
+    this.consumers.put(roomAddress, consumer);
   }
 
-  private void unregisterRoom(String roomId) {
-    if (this.consumers.containsKey(roomId)) {
-      this.consumers.get(roomId).unregister();
-      this.consumers.remove(roomId);
+  private void unregisterRoom(String roomAddress) {
+    System.out.println("Unregistered room: " + roomAddress);
+    if (this.consumers.containsKey(roomAddress)) {
+      this.consumers.get(roomAddress).unregister();
+      this.consumers.remove(roomAddress);
     }
   }
 
@@ -101,12 +104,14 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   public void start(Promise<Void> startPromise) throws Exception {
     super.start(startPromise);
     eventBus.<String>consumer(roomsAddedTopic).handler((msg) -> {
+      System.out.println("Rooms added topic: " + msg.body());
       RoomMessage newRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);
-      registerNewRoom(newRoom.getRoomId());
+      registerNewRoom(newRoom.getRoomAddress());
     });
     eventBus.<String>consumer(roomsRemovedTopic).handler((msg) -> {
-      RoomMessage newRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);
-      unregisterRoom(newRoom.getRoomId());
+      System.out.println("Rooms removed topic: " + msg.body());
+      RoomMessage removedRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);
+      unregisterRoom(removedRoom.getRoomAddress());
     });
   }
 
@@ -122,38 +127,7 @@ public class ChatHistoryVerticle extends AbstractVerticle {
       routingContext.response().end("Chat works!");
     });
 
-/*    router.route("/metrics").handler((routingContext) -> { // TODO Change path
-      HttpServerResponse httpServerResponse = routingContext.response().putHeader("content-type", "application/json");
-      httpServerResponse.end(JsonObject.mapFrom(messages).encodePrettily());
-    });*/
-
     return router;
   }
 
-  public Map<String, List<InternalMessage>> getMessages() {
-    return messages;
-  }
-
-/*  public static void main(String[] args) {
-    Vertx vertx = Vertx.vertx();
-    Router router = Router.router(vertx);
-
-    ChatHistoryVerticle historyVerticle = new ChatHistoryVerticle();
-    vertx.deployVerticle(historyVerticle, (rs) -> {
-      router.mountSubRouter("/history", historyVerticle.createRouter());
-    });
-
-    // TODO Remove
-    historyVerticle.getMessages().put("room_1", new ArrayList<>());
-    new MessageThread(vertx.eventBus(), () -> System.out.println("Closed")).messageThread().start();
-
-    vertx.createHttpServer().requestHandler(router).listen(9003, http -> {
-      if (http.succeeded()) {
-        HttpServer server = http.result();
-        System.out.println("Server running");
-      }
-    });
-
-
-  }*/
 }

@@ -22,12 +22,13 @@ public class ChatRoomsBroker {
     this.eventBus = eventBus;
   }
 
-  public void newRoom(String roomId) {
-    this.eventBus.publish(newRoomTopic, new RoomMessage(roomId, RoomMessage.RoomAction.New));
+  public void newRoom(String roomAddress) {
+    System.out.println("New room: " + roomAddress);
+    this.eventBus.publish(newRoomTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.New).jsonStr());
   }
 
-  public void removedRoom(String roomId) {
-    this.eventBus.publish(removedRoomsTopic, new RoomMessage(roomId, RoomMessage.RoomAction.Removed));
-
+  public void removedRoom(String roomAddress) {
+    System.out.println("Removed room: " + roomAddress);
+    this.eventBus.publish(removedRoomsTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.Removed).jsonStr());
   }
 }

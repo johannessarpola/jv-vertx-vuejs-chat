@@ -1,32 +1,20 @@
 package fi.johannes.chat.types;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Johannes on 22.3.2020.
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class IdMessage implements MessageEvent {
 
-  public IdMessage(String id, String displayName) {
-    this.id = id;
-    this.displayName = displayName;
-  }
   private String id;
   private String displayName;
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
+  private String roomId;
 
   @Override
   public boolean recipientFilter(User recipient) {

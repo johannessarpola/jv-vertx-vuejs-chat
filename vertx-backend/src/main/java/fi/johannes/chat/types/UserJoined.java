@@ -5,8 +5,8 @@ package fi.johannes.chat.types;
  */
 public class UserJoined extends IdMessage {
 
-  public UserJoined(String id, String displayName) {
-    super(id, displayName);
+  public UserJoined(String id, String displayName, String roomId) {
+    super(id, displayName, roomId);
   }
 
   @Override

@@ -2,7 +2,6 @@ package fi.johannes.chat;
 
 import fi.johannes.chat.animals.AnimalsInstance;
 import fi.johannes.chat.animals.types.Animal;
-import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.chat.types.AssignedId;
 import fi.johannes.chat.types.FrontendMessage;
 import fi.johannes.chat.types.InternalMessage;
@@ -15,7 +14,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -35,12 +33,13 @@ public class ChatVerticle extends AbstractVerticle {
 
   private ChatRooms rooms;
   private ChatBus bus;
-  private ChatRoomsBroker broker;
+  private ChatHistory history;
 
   @Override
   public void init(Vertx vertx, Context context) {
     this.rooms = new ChatRooms(vertx.eventBus());
     this.bus = new ChatBus(vertx.eventBus());
+    this.history = new ChatHistory(vertx.eventBus());
     this.animals = AnimalsInstance.getInstance();
     super.init(vertx, context);
   }
@@ -77,22 +76,18 @@ public class ChatVerticle extends AbstractVerticle {
 
   private Handler<Void> onClose(User user, String roomId) {
     return (err) -> {
+      // TODO Use broker to remove room
       System.out.println("onClose");
       user.getConsumer().unregister();
       rooms.removeUser(roomId, user);
     };
   }
 
-  private void forwardToEventbus(String userId, MessageEvent content) {
-    bus.sendJson(userId, content.getRoomId(), content.json(), (ar) -> {
-      System.out.println("done send");
-    });
-  }
-
-  private void assignedId(User user) {
-    MessageEvent me = new AssignedId(user.getUserId(), user.getDisplayName());
+  private void assignedId(User user, String roomAddress) {
+    MessageEvent me = new AssignedId(user.getUserId(), user.getDisplayName(), roomAddress);
     user.getSocket().writeTextMessage(me.jsonStr());
-    forwardToEventbus(user.getUserId(), me);
+    // TODO Enable at some point
+    // bus.publishJson(user.getUserId(), roomAddress, me.json());
   }
 
   private Optional<String> getAnimal(String roomId) {
@@ -117,30 +112,34 @@ public class ChatVerticle extends AbstractVerticle {
       Room room = new Room(roomId);
       String userId = UUID.randomUUID().toString();
 
+      String displayName = getAnimal(roomId).orElse(userId);
+
       // Eventbus consumer
       MessageConsumer<String> consumer = bus.registerConsumer(room.getAddress(), (msg) -> {
+        System.out.println("Receiver: "+userId+"_"+displayName);
+        System.out.println("Consuming message: " +msg.body().toString());
         if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
           socket.writeTextMessage(new JsonObject(msg.body()).encode());
         }
       });
 
-      String displayName = getAnimal(roomId).orElse(userId);
 
       User user = new User(socket, room.getId(), userId, consumer, displayName);
-      assignedId(user);
+      assignedId(user, room.getAddress());
       rooms.joinRoom(room, user);
 
       socket.exceptionHandler(onExceptions(user, roomId));
       socket.closeHandler(onClose(user, roomId));
 
+      // TODO Seems to be issue with recreating this when same window is used with multiple windows
+      // Might want to investigate how the socket is handled in the backend when it is recreated from the front end
       socket.textMessageHandler( (msg) -> {
         FrontendMessage fm = new JsonObject(msg).mapTo(FrontendMessage.class);
         InternalMessage im = new InternalMessage(roomId, user.getUserId(), user.getDisplayName(), fm.getContents());
 
-        bus.sendJson(user.getUserId(), room.getId(), JsonObject.mapFrom(im), (ar) -> {
-          System.out.println("done send");
-        });
-
+        JsonObject json = JsonObject.mapFrom(im);
+        bus.publishJson(user.getUserId(), room.getAddress(), json);
+        history.messageSent(room.getAddress(), json);
       });
     });
 
@@ -156,25 +155,5 @@ public class ChatVerticle extends AbstractVerticle {
   public void stop(Promise<Void> stopPromise) throws Exception {
     super.stop(stopPromise);
   }
-  public static void main(String[] args) {
-    Vertx vertx = Vertx.vertx();
-    Router router = Router.router(vertx);
 
-    ChatVerticle chatVerticle = new ChatVerticle();
-    vertx.deployVerticle(chatVerticle, (rs) -> {
-      router.mountSubRouter("/chat", chatVerticle.createRouter());
-    });
-
-    ChatHistoryVerticle chatHistory = new ChatHistoryVerticle();
-    vertx.deployVerticle(chatVerticle, (rs) -> {
-      router.mountSubRouter("/history", chatHistory.createRouter());
-    });
-
-    vertx.createHttpServer().requestHandler(router).listen(9003, http -> {
-      if (http.succeeded()) {
-        HttpServer server = http.result();
-        System.out.println("Server running");
-      }
-    });
-  }
 }

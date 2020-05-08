@@ -1,5 +1,6 @@
 package fi.johannes.chat.history.types;
 
+import io.vertx.core.json.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +20,11 @@ public class Envelope<T> {
   private Sender sender;
   private Message<T> message;
 
+  public JsonObject json() {
+    return JsonObject.mapFrom(this);
+  }
+  public String jsonStr() {
+    return json().encode();
+  }
 }
+

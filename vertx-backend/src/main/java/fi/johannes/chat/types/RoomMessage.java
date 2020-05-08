@@ -1,5 +1,6 @@
 package fi.johannes.chat.types;
 
+import io.vertx.core.json.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RoomMessage {
 
-  private String roomId;
+  private String roomAddress;
   private RoomAction action;
 
   public static enum RoomAction {
     New,
     Removed
+  }
+
+  public String jsonStr() {
+    return json().encode();
+  }
+  public JsonObject json() {
+    return JsonObject.mapFrom(this);
   }
 }
 
