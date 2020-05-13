@@ -1,3 +1,4 @@
+.env
 **/kafka_data/
 *.class
 .git
