@@ -103,7 +103,10 @@ services:
     # kafkacat -b kafka:9092 -t test -C -c1
     image: ubuntu:latest
     hostname: ubuntu
-    command: tail -F anything
+    command: "bash -c 'apt-get update && \ 
+              apt-get -y install iputils-ping && \
+              apt-get -y install kafkacat && \
+              tail -F anything'"
 
   coordinator:
     image: apache/druid:0.17.0
