@@ -19,33 +19,9 @@
 version: "2.2"
 
 volumes:
-  metadata_data: {}
-  middle_var: {}
-  historical_var: {}
-  broker_var: {}
-  coordinator_var: {}
-  router_var: {}
   kafka_data: {}
 
-
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:latest
-    volumes:
-      - metadata_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=FoolishPassword
-      - POSTGRES_USER=druid
-      - POSTGRES_DB=druid
-
-  # Need 3.5 or later for container nodes
-  zookeeper:
-    container_name: zookeeper
-    image: zookeeper:3.5
-    environment:
-      - ZOO_MY_ID=1
-
   kafka_zookeeper:
     container_name: kafka_zookeeper
     image: confluentinc/cp-zookeeper:5.5.0
@@ -60,18 +36,12 @@ services:
       - '19092:19092'
     environment:
       KAFKA_BROKER_ID: 1
-      # KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:19092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:19092 # ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: kafka_zookeeper:2181
       KAFKA_CREATE_TOPICS: "messages:1:1,test:1:1"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#     # For more details see See https://rmoff.net/2018/08/02/kafka-listeners-explained/
-#     KAFKA_LISTENERS: LISTENER_BOB://kafka0:29092,LISTENER_FRED://kafka0:9092,LISTENER_ALICE://kafka0:29094
-#     KAFKA_ADVERTISED_LISTENERS: LISTENER_BOB://kafka0:29092,LISTENER_FRED://localhost:9092,LISTENER_ALICE://never-gonna-give-you-up:29094
-#     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_BOB:PLAINTEXT,LISTENER_FRED:PLAINTEXT,LISTENER_ALICE:PLAINTEXT
-#     KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_BOB
     volumes:
       - ./kafka_data:/var/lib/kafka/data
     depends_on:
@@ -95,97 +65,10 @@ services:
       KAFKA_BROKER_ID: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
 
-
-  ubuntu:
-    # apt-get update
-    # apt-get install iputils-ping
-    # apt-get install kafkacat
-    # kafkacat -b kafka:9092 -t test -C -c1
+  kafka-ubuntu:
     image: ubuntu:latest
     hostname: ubuntu
     command: "bash -c 'apt-get update && \ 
               apt-get -y install iputils-ping && \
               apt-get -y install kafkacat && \
               tail -F anything'"
-
-  coordinator:
-    image: apache/druid:0.17.0
-    container_name: coordinator
-    volumes:
-      - ./storage:/opt/data
-      - coordinator_var:/opt/druid/var
-    depends_on: 
-      - zookeeper
-      - postgres
-    ports:
-      - "8081:8081"
-    command:
-      - coordinator
-    env_file:
-      - environment
-
-  broker:
-    image: apache/druid:0.17.0
-    container_name: broker
-    volumes:
-      - broker_var:/opt/druid/var
-    depends_on: 
-      - zookeeper
-      - postgres
-      - coordinator
-    ports:
-      - "8082:8082"
-    command:
-      - broker
-    env_file:
-      - environment
-
-  historical:
-    image: apache/druid:0.17.0
-    container_name: historical
-    volumes:
-      - ./storage:/opt/data
-      - historical_var:/opt/druid/var
-    depends_on: 
-      - zookeeper
-      - postgres
-      - coordinator
-    ports:
-      - "8083:8083"
-    command:
-      - historical
-    env_file:
-      - environment
-
-  middlemanager:
-    image: apache/druid:0.17.0
-    container_name: middlemanager
-    volumes:
-      - ./storage:/opt/data
-      - middle_var:/opt/druid/var
-    depends_on: 
-      - zookeeper
-      - postgres
-      - coordinator
-    ports:
-      - "8091:8091"
-    command:
-      - middleManager
-    env_file:
-      - environment
-
-  router:
-    image: apache/druid:0.17.0
-    container_name: router
-    volumes:
-      - router_var:/opt/druid/var
-    depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
-    ports:
-      - "8888:8888"
-    command:
-      - router
-    env_file:
-      - environment
