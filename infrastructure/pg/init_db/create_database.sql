@@ -1,6 +1,5 @@
 create table "message_history" (
   id          serial primary key
-, type        text
 , stamp       timestamp
 , message     jsonb                -- Straight up JSON!
 );
