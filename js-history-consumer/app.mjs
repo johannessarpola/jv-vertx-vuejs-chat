@@ -6,107 +6,107 @@ const { config } = dotenv;
 const { Kafka } = kafka;
 const { Client, Pool } = pg;
 
-const conf = config();
-
-const kafkaHost = process.env.KAFKA_HOST;
-const kafkaPort = process.env.KAFKA_PORT;
-
-const kafkaClient = new Kafka({
-    clientId: 'message-history-consumer',
-    brokers: [`${kafkaHost}:${kafkaPort}`]
-});
-const consumer = kafkaClient.consumer({ groupId: process.env.KAFKA_GROUP_ID })
-
 class MessageHistoryDatabase {
-    constructor(host, port, database, user, password) {
-        this.host = host;
-        this.port = port;
-        this.database = database;
-        this.user = user;
-        this.password = password;
+    // Uses env
+    constructor() {
+        this.createPool();
     }
 
-    createPool = async () => {
-        /*const pool = new Pool({
-            user: this.user,
-            host: this.host,
-            database: this.database,
-            password: this.password,
-            port: this.port,
-        }); */
+    createPool = async (host, port, database, user, password) => {
+        const pool = new Pool({
+            user: host,
+            host: port,
+            database: database,
+            password: user,
+            port: password,
+        });
         this.pool = new Pool();
         return pool;
     }
 
-    storeMessage = async (type, stamp, message) => {
-        const insertion = 'INSERT INTO message_history(type, stamp, data) VALUES($1, $2, $3) RETURNING id'
+    createPool = async () => {
+        this.pool = new Pool();
+        return this.pool;
+    }
+
+    storeMessage = async (message) => {
+        const insertion = 'INSERT INTO message_history(stamp, message) VALUES($1, $2) RETURNING id'
         console.log("inserting")
-        // TODO Use store pool
-        new Pool().connect((err, client, done) => {
-            const shouldAbort = err => {
-                if (err) {
-                    console.error('Error in transaction', err.stack)
-                    client.query('ROLLBACK', err => {
-                        if (err) {
-                            console.error('Error rolling back client', err.stack)
-                        }
-                        // release the client back to the pool
-                        done()
-                    })
+        if (this.pool != null) {
+            this.pool.connect((err, client, done) => {
+                const shouldAbort = err => {
+                    if (err) {
+                        console.error('Error in transaction', err.stack)
+                        client.query('ROLLBACK', err => {
+                            if (err) {
+                                console.error('Error rolling back client', err.stack)
+                            }
+                            // release the client back to the pool
+                            done()
+                        })
+                    }
+                    return !!err
                 }
-                return !!err
-            }
-            client.query('BEGIN', err => {
-                if (shouldAbort(err)) return
-                const queryText = insertion
-                client.query(queryText, [type, stamp, JSON.stringify(message)], (err, res) => {
-                    console.log(res);
+                client.query('BEGIN', err => {
                     if (shouldAbort(err)) return
-                    client.query('COMMIT', err => {
-                        if (err) {
-                            console.error('Error committing transaction', err.stack)
-                        }
-                        done()
+                    const queryText = insertion
+                    client.query(queryText, [new Date(), message], (err, res) => {
+                        if (shouldAbort(err)) return
+                        client.query('COMMIT', err => {
+                            if (err) {
+                                console.error('Error committing transaction', err.stack)
+                            }
+                            done()
+                        })
                     })
                 })
             })
-        })
-    }
 
-}
-
-const db = new MessageHistoryDatabase('a', 'a', 'a', 'a', 'a');
-function store_message(message) {
-    const date = new Date();
-    const { type } = message;
-    console.log(date.getTime());
-    console.log(type);
-    db.storeMessage(type, date, message);
-}
-
-async function eventHandler(event) {
-    const { topic, partition, message } = event;
-    const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`
-    try {
-        const json = JSON.parse(message.value.toString());
-        console.log(`${prefix}: ${JSON.stringify(json)}`);
-        store_message(json);
-    } catch (e) {
-        console.log(e); // error in the above string (in this case, yes)!
+        } else {
+            console.error("Initialize the database pool first");
+        }
     }
 }
+
+
+class KafkaEventHandler {
+    constructor(messageSink) {
+        this.messageSink = messageSink;
+    }
+    eventHandler = async (event) => {
+        const { topic, partition, message } = event;
+        const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`
+        try {
+            this.messageSink(JSON.parse(message.value.toString()));
+        } catch (e) {
+            console.log(e); // error in the above string (in this case, yes)!
+        }
+    }
+    
+}
+
 
 
 async function subscribe(consumer, handler) {
     await consumer.connect()
-    await consumer.subscribe({ topic: 'test', fromBeginning: true })
+    await consumer.subscribe({ topic: process.env.KAFKA_TOPIC, fromBeginning: true })
     await consumer.run({
-        eachMessage: handler,
+        eachMessage: (msg) => {
+            handler(msg)
+        },
     });
 }
 
-const s = async () => {
-    subscribe(consumer, eventHandler)
-};
 
-s();
+// Load .env
+config();
+
+const kafkaClient = new Kafka({
+    clientId: 'message-history-consumer',
+    brokers: [`${process.env.KAFKA_HOST}:${process.env.KAFKA_PORT}`]
+});
+const consumer = kafkaClient.consumer({ groupId: process.env.KAFKA_GROUP_ID })
+
+const db = new MessageHistoryDatabase();
+const handler = new KafkaEventHandler(db.storeMessage);
+subscribe(consumer, handler.eventHandler)

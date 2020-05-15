@@ -2,7 +2,7 @@ create table "message_history" (
   id          serial primary key
 , type        text
 , stamp       timestamp
-, data        json                -- Straight up JSON!
+, message     jsonb                -- Straight up JSON!
 );
 
 CREATE USER message_history_user WITH PASSWORD 'secretpassword';
