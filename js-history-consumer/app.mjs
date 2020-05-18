@@ -82,7 +82,7 @@ class KafkaEventHandler {
             console.log(e); // error in the above string (in this case, yes)!
         }
     }
-    
+
 }
 
 
