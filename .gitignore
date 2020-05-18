@@ -1,5 +1,6 @@
 .env
 **/kafka_data/
+**/postgres_data/
 *.class
 .git
 .gradle

@@ -16,14 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-version: "2.2"
+version: "3.8"
 
 volumes:
-  kafka_data: {}
+  kafka_data:
+  postgres_data:
 
 services:
   kafka_zookeeper:
-    container_name: kafka_zookeeper
     image: confluentinc/cp-zookeeper:5.5.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -31,12 +31,11 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:5.5.0
-    container_name: kafka
     ports:
-      - '19092:19092'
+      - '19092:19092' # Forward port to outside cluster
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:19092 # ${DOCKER_HOST_IP:-127.0.0.1}
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:19092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: kafka_zookeeper:2181
@@ -51,8 +50,6 @@ services:
   # This "container" is a workaround to pre-create topics
   kafka-setup:
     image: confluentinc/cp-kafka:5.5.0
-    hostname: kafka-setup
-    container_name: kafka-setup
     depends_on:
       - kafka
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
@@ -60,15 +57,19 @@ services:
                      kafka-topics --create --if-not-exists --zookeeper kafka_zookeeper:2181 --partitions 1 --replication-factor 1 --topic messages && \
                      kafka-topics --create --if-not-exists --zookeeper kafka_zookeeper:2181 --partitions 1 --replication-factor 1 --topic test'"
     environment:
-      # The following settings are listed here only to satisfy the image's requirements.
-      # We override the image's `command` anyways, hence this container will not start a broker.
       KAFKA_BROKER_ID: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
 
   kafka-ubuntu:
     image: ubuntu:latest
-    hostname: ubuntu
     command: "bash -c 'apt-get update && \ 
               apt-get -y install iputils-ping && \
               apt-get -y install kafkacat && \
               tail -F anything'"
+
+  history-postgres:
+    image: johannes/pg-message-history:1.0.0
+    ports:
+      - '15432:5432' # Forward port to outside cluster
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
