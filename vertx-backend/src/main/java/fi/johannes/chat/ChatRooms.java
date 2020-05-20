@@ -1,5 +1,6 @@
 package fi.johannes.chat;
 
+import fi.johannes.chat.forwarders.ChatRoomsForwarder;
 import fi.johannes.chat.types.Room;
 import fi.johannes.chat.types.User;
 import io.vertx.core.eventbus.EventBus;
@@ -13,13 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChatRooms {
 
-  private final ChatRoomsBroker broker;
+  private final ChatRoomsForwarder broker;
   private Map<String, Room> rooms;
   private Map<String, User> usersById;
   private Map<String, User> usersByDisplay;
 
   public ChatRooms(EventBus eventBus) {
-    this.broker = new ChatRoomsBroker(eventBus);
+    this.broker = new ChatRoomsForwarder(eventBus);
     this.rooms = new ConcurrentHashMap<>();
     this.usersById = new ConcurrentHashMap<>();
     this.usersByDisplay = new ConcurrentHashMap<>();

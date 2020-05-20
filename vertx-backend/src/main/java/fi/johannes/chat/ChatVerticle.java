@@ -2,6 +2,7 @@ package fi.johannes.chat;
 
 import fi.johannes.chat.animals.AnimalsInstance;
 import fi.johannes.chat.animals.types.Animal;
+import fi.johannes.chat.forwarders.ChatHistoryForwarder;
 import fi.johannes.chat.types.AssignedId;
 import fi.johannes.chat.types.FrontendMessage;
 import fi.johannes.chat.types.InternalMessage;
@@ -33,13 +34,13 @@ public class ChatVerticle extends AbstractVerticle {
 
   private ChatRooms rooms;
   private ChatBus bus;
-  private ChatHistory history;
+  private ChatHistoryForwarder history;
 
   @Override
   public void init(Vertx vertx, Context context) {
     this.rooms = new ChatRooms(vertx.eventBus());
     this.bus = new ChatBus(vertx.eventBus());
-    this.history = new ChatHistory(vertx.eventBus());
+    this.history = new ChatHistoryForwarder(vertx.eventBus());
     this.animals = AnimalsInstance.getInstance();
     super.init(vertx, context);
   }

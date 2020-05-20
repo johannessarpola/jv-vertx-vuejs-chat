@@ -1,4 +1,4 @@
-package fi.johannes.chat;
+package fi.johannes.chat.forwarders;
 
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -7,15 +7,15 @@ import io.vertx.core.json.JsonObject;
 /**
  *
  */
-public class ChatHistory {
-  private EventBus eventBus;
-  private String historySuffix = "history";
+public class ChatHistoryForwarder {
+  private final EventBus eventBus;
 
-  public ChatHistory(EventBus eventBus) {
+  public ChatHistoryForwarder(EventBus eventBus) {
     this.eventBus = eventBus;
   }
 
   private String address(String roomId) {
+    String historySuffix = "history";
     return String.format("%s.%s", roomId, historySuffix);
   }
 

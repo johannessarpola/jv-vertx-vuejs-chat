@@ -1,4 +1,4 @@
-package fi.johannes.chat;
+package fi.johannes.chat.forwarders;
 
 import fi.johannes.chat.types.RoomMessage;
 import io.vertx.core.eventbus.EventBus;
@@ -6,17 +6,17 @@ import io.vertx.core.eventbus.EventBus;
 /**
  * Johannes on 7.5.2020.
  */
-public class ChatRoomsBroker {
+public class ChatRoomsForwarder {
 
   private String newRoomTopic = "rooms.new";
   private String removedRoomsTopic = "rooms.removed";
-  private EventBus eventBus;
+  private final EventBus eventBus;
 
-  public ChatRoomsBroker(EventBus eventBus) {
+  public ChatRoomsForwarder(EventBus eventBus) {
     this.eventBus = eventBus;
   }
 
-  public ChatRoomsBroker(String roomsAddedTopic, String roomsRemovedTopic, EventBus eventBus) {
+  public ChatRoomsForwarder(String roomsAddedTopic, String roomsRemovedTopic, EventBus eventBus) {
     this.newRoomTopic = roomsAddedTopic;
     this.removedRoomsTopic = roomsRemovedTopic;
     this.eventBus = eventBus;
