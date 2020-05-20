@@ -1,4 +1,5 @@
 .env
+**/mongo_data/
 **/kafka_data/
 **/postgres_data/
 *.class

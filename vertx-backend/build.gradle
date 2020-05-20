@@ -41,6 +41,7 @@ configurations {
 
 dependencies {
 
+    compile 'org.mongodb:mongodb-driver-reactivestreams:1.13.1'
     compile 'io.vertx:vertx-reactive-streams:3.8.5'
     compile 'io.vertx:vertx-rx-java2:3.9.0'
     compile 'io.vertx:vertx-web-client:3.8.5'
