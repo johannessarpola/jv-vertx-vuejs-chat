@@ -105,7 +105,6 @@ public class ChatVerticle extends AbstractVerticle {
     Router router = initializeRouter();
 
     router.route("/healthcheck").handler((routingContext) -> {
-      // TODO Output data
       routingContext.response().end("Chat works!");
     });
 

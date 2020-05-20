@@ -13,7 +13,7 @@ import io.vertx.core.Vertx;
  *
  * TODO: Maybe not a verticle?
  * Johannes on 20.5.2020.
- */origi
+ */
 public class ChatRoomsVerticle extends AbstractVerticle {
 
 
