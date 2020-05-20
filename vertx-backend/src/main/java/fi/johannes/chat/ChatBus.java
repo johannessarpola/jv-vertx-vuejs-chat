@@ -23,15 +23,6 @@ public class ChatBus {
     options.addHeader("sender", senderId);
     this.eventBus.publish(address, message.encode(), options);
   }
-/*
-
-  public void sendJson(String senderId, String address, JsonObject message, Handler<AsyncResult<Message<JsonObject>>> replyHandler) {
-    DeliveryOptions options = new DeliveryOptions();
-    options.addHeader("sender", senderId);
-    this.eventBus.request(address, message.encode(), options, replyHandler);
-  }
-*/
-
 
   public MessageConsumer<String> registerConsumer(String address, Handler<Message<String>> handler) {
     MessageConsumer<String> stringMessageConsumer = this.eventBus.consumer(address, handler);

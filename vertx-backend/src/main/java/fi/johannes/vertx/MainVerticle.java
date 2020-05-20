@@ -11,21 +11,20 @@ import io.vertx.ext.web.Router;
 public class MainVerticle extends AbstractVerticle {
 
   @Override
-  public void start(Promise<Void> startPromise) throws Exception {
+  public void start(Promise<Void> startPromise) {
 
     Router router = Router.router(vertx);
     vertx.createHttpServer().requestHandler(router).listen(9003, http -> {
       if (http.succeeded()) {
         HttpServer server = http.result();
-
         startPromise.complete();
 
         // Chat
-        ChatVerticle cv = new ChatVerticle();
-        vertx.deployVerticle(cv, (result) -> {
+        ChatVerticle chat = new ChatVerticle();
+        vertx.deployVerticle(chat, (result) -> {
           if (result.succeeded()) {
             System.out.println("chat ok");
-            router.mountSubRouter("/chat", cv.createRouter());
+            router.mountSubRouter("/chat", chat.createRouter());
           } else {
             System.out.println("Could not start ChatVerticle");
           }

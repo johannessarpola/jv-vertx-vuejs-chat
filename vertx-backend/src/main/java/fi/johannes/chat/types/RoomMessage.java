@@ -16,7 +16,7 @@ public class RoomMessage {
   private String roomAddress;
   private RoomAction action;
 
-  public static enum RoomAction {
+  public enum RoomAction {
     New,
     Removed
   }

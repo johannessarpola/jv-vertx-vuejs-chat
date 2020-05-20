@@ -25,9 +25,4 @@ public class InternalMessage implements MessageEvent {
     this.senderDisplayName = senderDisplayName;
     this.message = message;
   }
-
-  @Override
-  public boolean recipientFilter(User recipient) {
-    return !recipient.getUserId().equals(this.senderId);
-  }
 }

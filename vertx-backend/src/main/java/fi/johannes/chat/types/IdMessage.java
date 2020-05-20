@@ -16,9 +16,4 @@ public abstract class IdMessage implements MessageEvent {
   private String displayName;
   private String roomId;
 
-  @Override
-  public boolean recipientFilter(User recipient) {
-    // Don't need to filter by default
-    return true;
-  }
 }

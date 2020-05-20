@@ -14,13 +14,13 @@ public class ChatHistoryForwarder {
     this.eventBus = eventBus;
   }
 
-  private String address(String roomId) {
+  private String roomHistoryAddress(String roomId) {
     String historySuffix = "history";
     return String.format("%s.%s", roomId, historySuffix);
   }
 
-  public void messageSent(String roomAddress, JsonObject message) {
+  public void forwardMessage(String roomAddress, JsonObject message) {
     DeliveryOptions options = new DeliveryOptions();
-    this.eventBus.request(address(roomAddress), message.encode(), options, (r) -> System.out.println("Received history reply: " +r));
+    this.eventBus.request(roomHistoryAddress(roomAddress), message.encode(), options, (r) -> System.out.println("Received history reply: " +r));
   }
 }

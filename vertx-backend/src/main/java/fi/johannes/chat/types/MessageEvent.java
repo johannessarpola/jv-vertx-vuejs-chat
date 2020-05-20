@@ -18,5 +18,4 @@ public interface MessageEvent extends ToJson {
   default JsonObject json() {
     return JsonObject.mapFrom(this);
   }
-  boolean recipientFilter(User recipient);
 }

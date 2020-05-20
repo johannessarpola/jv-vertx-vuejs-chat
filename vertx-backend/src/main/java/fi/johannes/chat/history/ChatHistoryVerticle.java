@@ -33,33 +33,30 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatHistoryVerticle extends AbstractVerticle {
 
   private EventBus eventBus;
-  private String kafkaTopic = "messages";
-  private String roomHistorySuffix = "history";
-  private String roomsAddedTopic = "rooms.new";
-  private String roomsRemovedTopic = "rooms.removed";
-  private Map<String, String> kafkaProducerConf;
+  private final String kafkaTopic = "messages";
+  private final String roomHistorySuffix = "history";
+  private final String roomsAddedTopic = "rooms.new";
+  private final String roomsRemovedTopic = "rooms.removed";
   private KafkaProducer<String, JsonObject> kafkaProducer;
-  private Map<String, List<InternalMessage>> messages = new ConcurrentHashMap<>();
   private Map<String, MessageConsumer<?>> consumers = new ConcurrentHashMap<>();
 
-  @Override
-  public void init(Vertx vertx, Context context) {
-    super.init(vertx, context);
-    this.eventBus = vertx.eventBus();
-    Map<String, Handler<?>> consumers = new ConcurrentHashMap<>();
-    //    this.messages = new ConcurrentHashMap<>();
-
+  private KafkaProducer<String, JsonObject> initializeKafkaProducer() {
+    Map<String, String> kafkaProducerConf = new HashMap<>();
     // TODO Externalize
-    this.kafkaProducerConf = new HashMap<>();
     kafkaProducerConf.put("bootstrap.servers", "localhost:19092");
     kafkaProducerConf.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     kafkaProducerConf.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     kafkaProducerConf.put("value.deserializer", "io.vertx.kafka.client.serialization.JsonObjectDeserializer");
     kafkaProducerConf.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
     kafkaProducerConf.put("acks", "1");
+    return KafkaProducer.create(vertx, kafkaProducerConf);
+  }
 
-    this.kafkaProducer = KafkaProducer.create(vertx, kafkaProducerConf);
-
+  @Override
+  public void init(Vertx vertx, Context context) {
+    super.init(vertx, context);
+    this.eventBus = vertx.eventBus();
+    this.kafkaProducer = initializeKafkaProducer();
   }
 
   private Envelope<String> newEnvelope(InternalMessage m, String roomAddress) {
@@ -74,8 +71,8 @@ public class ChatHistoryVerticle extends AbstractVerticle {
 
   private MessageConsumer<String> newConsumer(String roomAddress) {
     return eventBus.<String>consumer(String.format("%s.%s", roomAddress, roomHistorySuffix)).handler((msg) -> {
-      System.out.println("History consumer: "+roomAddress);
-      System.out.println("Received message: "+msg.body());
+      System.out.println("History consumer: " + roomAddress);
+      System.out.println("Received message: " + msg.body());
       InternalMessage m = new JsonObject(msg.body()).mapTo(InternalMessage.class);
       Envelope<String> envelope = newEnvelope(m, roomAddress);
 
@@ -89,12 +86,14 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   private void registerNewRoom(String roomAddress) {
     System.out.println("Registered room: " + roomAddress);
     MessageConsumer<String> consumer = newConsumer(roomAddress);
-    this.consumers.put(roomAddress, consumer);
+    if (!this.consumers.containsKey(roomAddress) || this.consumers.getOrDefault(roomAddress, null) == null) {
+      this.consumers.put(roomAddress, consumer);
+    }
   }
 
   private void unregisterRoom(String roomAddress) {
     System.out.println("Unregistered room: " + roomAddress);
-    if (this.consumers.containsKey(roomAddress)) {
+    if (this.consumers.containsValue(roomAddress)) {
       this.consumers.get(roomAddress).unregister();
       this.consumers.remove(roomAddress);
     }
@@ -103,6 +102,7 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     super.start(startPromise);
+
     eventBus.<String>consumer(roomsAddedTopic).handler((msg) -> {
       System.out.println("Rooms added topic: " + msg.body());
       RoomMessage newRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);

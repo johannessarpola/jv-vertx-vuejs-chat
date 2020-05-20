@@ -33,13 +33,13 @@ public class ChatVerticle extends AbstractVerticle {
   private AnimalsInstance animals;
 
   private ChatRooms rooms;
-  private ChatBus bus;
+  private ChatBus chatBus;
   private ChatHistoryForwarder history;
 
   @Override
   public void init(Vertx vertx, Context context) {
     this.rooms = new ChatRooms(vertx.eventBus());
-    this.bus = new ChatBus(vertx.eventBus());
+    this.chatBus = new ChatBus(vertx.eventBus());
     this.history = new ChatHistoryForwarder(vertx.eventBus());
     this.animals = AnimalsInstance.getInstance();
     super.init(vertx, context);
@@ -65,33 +65,35 @@ public class ChatVerticle extends AbstractVerticle {
     return router;
   }
 
-  private Handler<Throwable> onExceptions(User user, String roomId) {
+  private void closeOrException(User user, String roomId) {
+    user.getConsumer().unregister();
+    rooms.removeUser(roomId, user);
+    user.getSocket().close();
+  }
+
+  private Handler<Throwable> socketOnExceptions(User user, String roomId) {
     return (err) -> {
       System.out.println("onExceptions");
       System.out.println(err.getMessage());
-      user.getConsumer().unregister();
-      rooms.removeUser(roomId, user);
-      user.getSocket().close();
+      closeOrException(user, roomId);
     };
   }
 
-  private Handler<Void> onClose(User user, String roomId) {
+  private Handler<Void> socketOnClose(User user, String roomId) {
     return (err) -> {
-      // TODO Use broker to remove room
       System.out.println("onClose");
-      user.getConsumer().unregister();
-      rooms.removeUser(roomId, user);
+      closeOrException(user, roomId);
     };
   }
 
-  private void assignedId(User user, String roomAddress) {
+  private void sendAssignedId(User user, String roomAddress) {
     MessageEvent me = new AssignedId(user.getUserId(), user.getDisplayName(), roomAddress);
     user.getSocket().writeTextMessage(me.jsonStr());
     // TODO Enable at some point
     // bus.publishJson(user.getUserId(), roomAddress, me.json());
   }
 
-  private Optional<String> getAnimal(String roomId) {
+  private Optional<String> generateDisplayName(String roomId) {
     Predicate<Animal> onlyUniques = (a) -> !this.rooms.getUserDisplayNames().contains(a.getName());
     Optional<String> displayName = Optional.ofNullable(this.animals)
       .map((as) -> as.getAnimal(onlyUniques))
@@ -113,10 +115,10 @@ public class ChatVerticle extends AbstractVerticle {
       Room room = new Room(roomId);
       String userId = UUID.randomUUID().toString();
 
-      String displayName = getAnimal(roomId).orElse(userId);
+      String displayName = generateDisplayName(roomId).orElse(userId);
 
       // Eventbus consumer
-      MessageConsumer<String> consumer = bus.registerConsumer(room.getAddress(), (msg) -> {
+      MessageConsumer<String> consumer = chatBus.registerConsumer(room.getAddress(), (msg) -> {
         System.out.println("Receiver: "+userId+"_"+displayName);
         System.out.println("Consuming message: " +msg.body().toString());
         if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
@@ -124,13 +126,12 @@ public class ChatVerticle extends AbstractVerticle {
         }
       });
 
-
       User user = new User(socket, room.getId(), userId, consumer, displayName);
-      assignedId(user, room.getAddress());
+      sendAssignedId(user, room.getAddress());
       rooms.joinRoom(room, user);
 
-      socket.exceptionHandler(onExceptions(user, roomId));
-      socket.closeHandler(onClose(user, roomId));
+      socket.exceptionHandler(socketOnExceptions(user, roomId));
+      socket.closeHandler(socketOnClose(user, roomId));
 
       // TODO Seems to be issue with recreating this when same window is used with multiple windows
       // Might want to investigate how the socket is handled in the backend when it is recreated from the front end
@@ -139,8 +140,8 @@ public class ChatVerticle extends AbstractVerticle {
         InternalMessage im = new InternalMessage(roomId, user.getUserId(), user.getDisplayName(), fm.getContents());
 
         JsonObject json = JsonObject.mapFrom(im);
-        bus.publishJson(user.getUserId(), room.getAddress(), json);
-        history.messageSent(room.getAddress(), json);
+        chatBus.publishJson(user.getUserId(), room.getAddress(), json);
+        history.forwardMessage(room.getAddress(), json);
       });
     });
 
