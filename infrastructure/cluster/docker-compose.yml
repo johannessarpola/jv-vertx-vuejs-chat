@@ -75,7 +75,9 @@ services:
 
   # Postgres database to store the message history
   history-postgres:
-    image: pg-message-history:latest
+    image: johannes/pg-message-history:latest
+    env_file:
+      - db.env.dev
     ports:
       - '15432:5432' # Forward port to outside cluster
     volumes:

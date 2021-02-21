@@ -6,10 +6,10 @@ include $(cnf)
 # DOCKER TASKS
 # Build the container
 build: ## Build the container
-	docker build -t $(APP_NAME) .
+	docker build -t ${DOCKER_REPO}/$(APP_NAME) .
 
 build-nc: ## Build the container without caching
-	docker build --no-cache -t $(APP_NAME) .
+	docker build --no-cache -t ${DOCKER_REPO}/$(APP_NAME) .
 
 run: ## Run container on port configured in `config.env`
 	docker run -i -t --rm --env-file ./config.env -p $(POSTGRES_PORT):$(POSTGRES_PORT) --name "$(APP_NAME)" $(APP_NAME)
