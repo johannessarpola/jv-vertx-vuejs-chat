@@ -1,26 +1,16 @@
 # ws-chat (vue-quasar-ws-chat)
 
-chatty
+Is the UI application to start chatting with other people connected to different rooms. Uses the Vert.X backend for passing
+messages to different clients in the room. Uses [Vue](https://vuejs.org/) with [Quasar Framework](https://quasar.dev/) for the UX.
 
-## Install the dependencies
+## Commands used
 ```bash
+# Basic dependency installs
 npm install
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
+# Run development server
 quasar dev
-```
-
-### Lint the files
-```bash
+# Run lint
 npm run lint
-```
-
-### Build the app for production
-```bash
+# Run build
 quasar build
 ```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
