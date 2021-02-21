@@ -1,7 +1,7 @@
 package fi.johannes.vertx;
 
-import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.chat.ChatVerticle;
+import fi.johannes.chat.history.ChatHistoryVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -21,6 +21,7 @@ public class MainVerticle extends AbstractVerticle {
     logger.info("Starting the main application");
     Router router = Router.router(vertx);
     vertx.createHttpServer().requestHandler(router).listen(9003, http -> {
+
       if (http.succeeded()) {
         HttpServer server = http.result();
         startPromise.complete();

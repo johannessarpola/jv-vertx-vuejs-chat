@@ -72,7 +72,7 @@ public class ChatVerticle extends AbstractVerticle {
   private void closeOrException(User user, String roomId) {
     user.getConsumer().unregister();
     rooms.removeUser(roomId, user);
-    if(!user.getSocket().isClosed()) {
+    if (!user.getSocket().isClosed()) {
       user.getSocket().close();
     }
   }
@@ -116,38 +116,45 @@ public class ChatVerticle extends AbstractVerticle {
 
     router.route("/room/:roomId").handler((routingContext) -> {
       String roomId = routingContext.request().getParam("roomId");
-      ServerWebSocket socket = routingContext.request().upgrade();
-      Room room = new Room(roomId);
-      String userId = UUID.randomUUID().toString();
+      routingContext.request().toWebSocket((ar) -> {
+        if (ar.succeeded()) {
+          ServerWebSocket socket = ar.result();
+          Room room = new Room(roomId);
+          String userId = UUID.randomUUID().toString();
 
-      String displayName = generateDisplayName(roomId).orElse(userId);
+          String displayName = generateDisplayName(roomId).orElse(userId);
 
-      // Eventbus consumer
-      MessageConsumer<String> consumer = chatBus.registerConsumer(room.getAddress(), (msg) -> {
-        logger.info("Receiver: "+userId+"_"+displayName);
-        logger.info("Consuming message: " +msg.body().toString());
-        if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
-          socket.writeTextMessage(new JsonObject(msg.body()).encode());
+          // Eventbus consumer
+          MessageConsumer<String> consumer = chatBus.registerConsumer(room.getAddress(), (msg) -> {
+            logger.info("Receiver: " + userId + "_" + displayName);
+            logger.info("Consuming message: " + msg.body().toString());
+            if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
+              socket.writeTextMessage(new JsonObject(msg.body()).encode());
+            }
+          });
+
+          User user = new User(socket, room.getId(), userId, consumer, displayName);
+          sendAssignedId(user, room.getAddress());
+          rooms.joinRoom(room, user);
+
+          socket.exceptionHandler(socketOnExceptions(user, roomId));
+          socket.closeHandler(socketOnClose(user, roomId));
+
+          // TODO Seems to be issue with recreating this when same window is used with multiple windows
+          // Might want to investigate how the socket is handled in the backend when it is recreated from the front end
+          socket.textMessageHandler((msg) -> {
+            FrontendMessage fm = new JsonObject(msg).mapTo(FrontendMessage.class);
+            InternalMessage im = new InternalMessage(roomId, user.getUserId(), user.getDisplayName(), fm.getContents());
+
+            JsonObject json = JsonObject.mapFrom(im);
+            chatBus.publishJson(user.getUserId(), room.getAddress(), json);
+            history.forwardMessage(room.getAddress(), json);
+          });
+        } else {
+          logger.warn("Could not upgrade request to WebSocket");
         }
       });
 
-      User user = new User(socket, room.getId(), userId, consumer, displayName);
-      sendAssignedId(user, room.getAddress());
-      rooms.joinRoom(room, user);
-
-      socket.exceptionHandler(socketOnExceptions(user, roomId));
-      socket.closeHandler(socketOnClose(user, roomId));
-
-      // TODO Seems to be issue with recreating this when same window is used with multiple windows
-      // Might want to investigate how the socket is handled in the backend when it is recreated from the front end
-      socket.textMessageHandler( (msg) -> {
-        FrontendMessage fm = new JsonObject(msg).mapTo(FrontendMessage.class);
-        InternalMessage im = new InternalMessage(roomId, user.getUserId(), user.getDisplayName(), fm.getContents());
-
-        JsonObject json = JsonObject.mapFrom(im);
-        chatBus.publishJson(user.getUserId(), room.getAddress(), json);
-        history.forwardMessage(room.getAddress(), json);
-      });
     });
 
     return router;
