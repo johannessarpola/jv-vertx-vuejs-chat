@@ -18,6 +18,7 @@
 #
 version: "3.8"
 
+# "virtual" volumes for containers
 volumes:
   kafka_data:
   postgres_data:
@@ -25,12 +26,14 @@ volumes:
   mongo_data:
 
 services:
+  # Just the zookeeper for Kafka
   kafka_zookeeper:
     image: confluentinc/cp-zookeeper:5.5.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+  # Kafka pipe for storing message history
   kafka:
     image: confluentinc/cp-kafka:5.5.0
     ports:
@@ -62,7 +65,7 @@ services:
       KAFKA_BROKER_ID: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
 
-  # TODO Remove
+  # This is just so for development purposes only to view kafka queues with shell
   kafka-ubuntu:
     image: ubuntu:latest
     command: "bash -c 'apt-get update && \ 
@@ -70,33 +73,10 @@ services:
               apt-get -y install kafkacat && \
               tail -F anything'"
 
+  # Postgres database to store the message history
   history-postgres:
-    image: johannes/pg-message-history:1.0.0
+    image: pg-message-history:latest
     ports:
       - '15432:5432' # Forward port to outside cluster
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  application-data-mongo:
-    image: mongo:4.2
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: secretpassword
-    ports:
-      - '37017:27017'
-    #volumes:
-    #  - ./mongo_data:/data/db
-
-  # TODO Maybe remove?
-  application-data-mongo-express:
-    image: mongo-express:0.54.0
-    depends_on:
-      - application-data-mongo
-    restart: always
-    ports:
-      - '18081:8081'
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_SERVER: application-data-mongo
-      ME_CONFIG_MONGODB_ADMINPASSWORD: secretpassword
