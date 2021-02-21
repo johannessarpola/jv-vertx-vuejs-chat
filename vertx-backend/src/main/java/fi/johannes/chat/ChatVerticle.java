@@ -68,7 +68,9 @@ public class ChatVerticle extends AbstractVerticle {
   private void closeOrException(User user, String roomId) {
     user.getConsumer().unregister();
     rooms.removeUser(roomId, user);
-    user.getSocket().close();
+    if(!user.getSocket().isClosed()) {
+      user.getSocket().close();
+    }
   }
 
   private Handler<Throwable> socketOnExceptions(User user, String roomId) {
