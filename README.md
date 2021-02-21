@@ -1,6 +1,7 @@
 # Anonymous chat application
 
-This application is microservice oriented room-based chatting application with complete anonymity. 
+This application is microservice oriented room-based chatting application with complete anonymity. Everyone gets only assigned a animal name and can chat 
+with each other through a room system. 
 
 ## Module explanations
 
