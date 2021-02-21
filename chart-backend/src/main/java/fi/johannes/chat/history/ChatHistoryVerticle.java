@@ -1,5 +1,6 @@
 package fi.johannes.chat.history;
 
+import fi.johannes.chat.ChatVerticle;
 import fi.johannes.chat.history.types.Envelope;
 import fi.johannes.chat.history.types.Message;
 import fi.johannes.chat.history.types.Meta;
@@ -9,6 +10,7 @@ import fi.johannes.chat.types.InternalMessage;
 import fi.johannes.chat.types.RoomMessage;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -18,6 +20,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -32,6 +38,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChatHistoryVerticle extends AbstractVerticle {
 
+  protected static final Logger logger = LoggerFactory.getLogger(ChatHistoryVerticle.class);
+
+  private int retryAttempts = 5;
+
   private EventBus eventBus;
   private final String kafkaTopic = "messages";
   private final String roomHistorySuffix = "history";
@@ -43,20 +53,23 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   private KafkaProducer<String, JsonObject> initializeKafkaProducer() {
     Map<String, String> kafkaProducerConf = new HashMap<>();
     // TODO Externalize
-    kafkaProducerConf.put("bootstrap.servers", "localhost:19092");
-    kafkaProducerConf.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-    kafkaProducerConf.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    kafkaProducerConf.put("value.deserializer", "io.vertx.kafka.client.serialization.JsonObjectDeserializer");
-    kafkaProducerConf.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
-    kafkaProducerConf.put("acks", "1");
+
+    kafkaProducerConf.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:19092");
+    kafkaProducerConf.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+    kafkaProducerConf.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.vertx.kafka.client.serialization.JsonObjectSerializer");
+    kafkaProducerConf.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "10000");
+    kafkaProducerConf.put(ProducerConfig.ACKS_CONFIG, "1");
     return KafkaProducer.create(vertx, kafkaProducerConf);
   }
 
   @Override
-  public void init(Vertx vertx, Context context) {
-    super.init(vertx, context);
-    this.eventBus = vertx.eventBus();
-    this.kafkaProducer = initializeKafkaProducer();
+  public void start() throws Exception {
+    try {
+      this.eventBus = vertx.eventBus();
+      this.kafkaProducer = initializeKafkaProducer();
+    } catch (Exception e) {
+      logger.error("Could not initialize KafkaProducer");
+    }
   }
 
   private Envelope<String> newEnvelope(InternalMessage m, String roomAddress) {
@@ -71,8 +84,8 @@ public class ChatHistoryVerticle extends AbstractVerticle {
 
   private MessageConsumer<String> newConsumer(String roomAddress) {
     return eventBus.<String>consumer(String.format("%s.%s", roomAddress, roomHistorySuffix)).handler((msg) -> {
-      System.out.println("History consumer: " + roomAddress);
-      System.out.println("Received message: " + msg.body());
+      logger.info("History consumer: " + roomAddress);
+      logger.info("Received message: " + msg.body());
       InternalMessage m = new JsonObject(msg.body()).mapTo(InternalMessage.class);
       Envelope<String> envelope = newEnvelope(m, roomAddress);
 
@@ -84,7 +97,7 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   }
 
   private void registerNewRoom(String roomAddress) {
-    System.out.println("Registered room: " + roomAddress);
+    logger.info("Registered room: " + roomAddress);
     MessageConsumer<String> consumer = newConsumer(roomAddress);
     if (!this.consumers.containsKey(roomAddress) || this.consumers.getOrDefault(roomAddress, null) == null) {
       this.consumers.put(roomAddress, consumer);
@@ -92,7 +105,7 @@ public class ChatHistoryVerticle extends AbstractVerticle {
   }
 
   private void unregisterRoom(String roomAddress) {
-    System.out.println("Unregistered room: " + roomAddress);
+    logger.info("Unregistered room: " + roomAddress);
     if (this.consumers.containsValue(roomAddress)) {
       this.consumers.get(roomAddress).unregister();
       this.consumers.remove(roomAddress);
@@ -104,12 +117,12 @@ public class ChatHistoryVerticle extends AbstractVerticle {
     super.start(startPromise);
 
     eventBus.<String>consumer(roomsAddedTopic).handler((msg) -> {
-      System.out.println("Rooms added topic: " + msg.body());
+      logger.info("Rooms added topic: " + msg.body());
       RoomMessage newRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);
       registerNewRoom(newRoom.getRoomAddress());
     });
     eventBus.<String>consumer(roomsRemovedTopic).handler((msg) -> {
-      System.out.println("Rooms removed topic: " + msg.body());
+      logger.info("Rooms removed topic: " + msg.body());
       RoomMessage removedRoom = new JsonObject(msg.body()).mapTo(RoomMessage.class);
       unregisterRoom(removedRoom.getRoomAddress());
     });

@@ -1,12 +1,18 @@
 package fi.johannes.chat.forwarders;
 
+import fi.johannes.chat.history.ChatHistoryVerticle;
 import fi.johannes.chat.types.RoomMessage;
 import io.vertx.core.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Johannes on 7.5.2020.
  */
 public class ChatRoomsForwarder {
+
+  protected static final Logger logger = LoggerFactory.getLogger(ChatRoomsForwarder.class);
+
 
   private String newRoomTopic = "rooms.new";
   private String removedRoomsTopic = "rooms.removed";
@@ -23,12 +29,12 @@ public class ChatRoomsForwarder {
   }
 
   public void newRoom(String roomAddress) {
-    System.out.println("New room: " + roomAddress);
+    logger.info("New room: " + roomAddress);
     this.eventBus.publish(newRoomTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.New).jsonStr());
   }
 
   public void removedRoom(String roomAddress) {
-    System.out.println("Removed room: " + roomAddress);
+    logger.info("Removed room: " + roomAddress);
     this.eventBus.publish(removedRoomsTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.Removed).jsonStr());
   }
 }

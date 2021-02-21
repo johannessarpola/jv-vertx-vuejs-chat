@@ -20,6 +20,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +31,8 @@ import java.util.function.Predicate;
  * Johannes on 18.3.2020.
  */
 public class ChatVerticle extends AbstractVerticle {
+
+  protected static final Logger logger = LoggerFactory.getLogger(ChatVerticle.class);
 
   private AnimalsInstance animals;
 
@@ -75,15 +79,15 @@ public class ChatVerticle extends AbstractVerticle {
 
   private Handler<Throwable> socketOnExceptions(User user, String roomId) {
     return (err) -> {
-      System.out.println("onExceptions");
-      System.out.println(err.getMessage());
+      logger.info("onExceptions");
+      logger.info(err.getMessage());
       closeOrException(user, roomId);
     };
   }
 
   private Handler<Void> socketOnClose(User user, String roomId) {
     return (err) -> {
-      System.out.println("onClose");
+      logger.info("onClose");
       closeOrException(user, roomId);
     };
   }
@@ -120,8 +124,8 @@ public class ChatVerticle extends AbstractVerticle {
 
       // Eventbus consumer
       MessageConsumer<String> consumer = chatBus.registerConsumer(room.getAddress(), (msg) -> {
-        System.out.println("Receiver: "+userId+"_"+displayName);
-        System.out.println("Consuming message: " +msg.body().toString());
+        logger.info("Receiver: "+userId+"_"+displayName);
+        logger.info("Consuming message: " +msg.body().toString());
         if (!msg.headers().get("sender").equals(userId) && !socket.isClosed()) {
           socket.writeTextMessage(new JsonObject(msg.body()).encode());
         }
