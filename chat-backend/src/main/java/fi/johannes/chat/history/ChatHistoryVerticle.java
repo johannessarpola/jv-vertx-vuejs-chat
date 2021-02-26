@@ -1,6 +1,5 @@
 package fi.johannes.chat.history;
 
-import fi.johannes.chat.ChatVerticle;
 import fi.johannes.chat.history.types.Envelope;
 import fi.johannes.chat.history.types.Message;
 import fi.johannes.chat.history.types.Meta;
@@ -9,27 +8,20 @@ import fi.johannes.chat.history.types.Sender;
 import fi.johannes.chat.types.InternalMessage;
 import fi.johannes.chat.types.RoomMessage;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

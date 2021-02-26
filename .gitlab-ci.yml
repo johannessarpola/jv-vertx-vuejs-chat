@@ -1,0 +1,29 @@
+---
+stages:
+  - build
+  - test
+
+
+chat-backend-build:
+  image: gradle:jre11
+  stage: build
+  only:
+    changes:
+      - "chat-backend/**/*"
+  script:
+    - gradle build
+
+#chat-ui-build:
+#  image: node
+#  stage: build
+#  onl
+#    changes:
+#      - "chat-ui/**/*"
+#  script:
+#    -
+#
+#chat-history-consumer-build:
+#  stage: build
+#  only:
+#    changes:
+#      - "chat-history-consumer/**/*"
