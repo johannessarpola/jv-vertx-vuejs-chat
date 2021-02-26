@@ -47,6 +47,8 @@ dependencies {
     compile "io.vertx:vertx-web-client:$vertxVersion"
     compile "io.vertx:vertx-kafka-client:$vertxVersion"
     compile "io.vertx:vertx-config:$vertxVersion"
+    compile "io.vertx:vertx-config-yaml:$vertxVersion"
+
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.5.0'
     deployerJars "org.apache.maven.wagon:wagon-webdav:1.0-beta-2"
     implementation "io.vertx:vertx-web:$vertxVersion"

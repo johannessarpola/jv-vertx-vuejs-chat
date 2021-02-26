@@ -19,7 +19,7 @@ with each other through a room system.
     - By default accessed locally by localhost:8080
 - chat-history-consumer
     - Is a barebones consumer of kafka pipe to handle message history. 
-    - Consumes the pipeline and the stores the data to postgres as `JSONB` data.
+    - Consumes the Kafka stream and the stores the data to postgres as `JSONB` data.
     - Has no UI
 - chat-infrastructure
     - Has the required infrastructure containers
