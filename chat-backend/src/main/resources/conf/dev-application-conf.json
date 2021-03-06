@@ -1,0 +1,4 @@
+{
+  "HTTP_PORT" : 9003,
+  "USE_KAFKA" : false
+}
