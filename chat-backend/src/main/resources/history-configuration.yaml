@@ -1,7 +1,0 @@
-run_configurations:
-  - bare:
-      kafka:
-        activated: false
-  - default:
-      kafka:
-        activated: true
