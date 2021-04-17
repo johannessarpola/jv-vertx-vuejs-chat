@@ -16,12 +16,6 @@ repositories {
 val vertxVersion = "4.0.2"
 val junitVersion = "4.13.2"
 
-sourceSets.getByName("main") {
-    java.srcDir("src/main/java")
-    java.srcDir("src/main/kotlin")
-    java.srcDir("src/main/resources")
-    java.srcDir("src/main/configs")
-}
 
 application {
     mainClassName = "fi.johannes.vertx.CustomLauncher"
