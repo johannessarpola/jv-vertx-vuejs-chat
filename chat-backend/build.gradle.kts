@@ -1,8 +1,10 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
+    kotlin ("jvm") version "1.4.21"
     application
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
