@@ -3,12 +3,12 @@ stages:
   - build
   - test
 
+caches:
+  - gradle
 
 chat-backend-build:
   image: gradle:jre11
   stage: build
-  caches:
-    - gradle
   only:
     changes:
       - "chat-backend/**/*"
