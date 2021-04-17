@@ -3,11 +3,9 @@ stages:
   - build
   - test
 
-caches:
-  - gradle
-
 chat-backend-build:
   image: gradle:jre11
+  cache: gradle
   stage: build
   only:
     changes:
