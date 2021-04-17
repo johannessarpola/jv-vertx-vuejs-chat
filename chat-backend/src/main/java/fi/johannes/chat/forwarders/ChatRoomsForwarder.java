@@ -29,12 +29,12 @@ public class ChatRoomsForwarder {
   }
 
   public void newRoom(String roomAddress) {
-    logger.info("New room: " + roomAddress);
+    logger.info("New room published: " + roomAddress);
     this.eventBus.publish(newRoomTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.New).jsonStr());
   }
 
   public void removedRoom(String roomAddress) {
-    logger.info("Removed room: " + roomAddress);
+    logger.info("Unpublished room: " + roomAddress);
     this.eventBus.publish(removedRoomsTopic, new RoomMessage(roomAddress, RoomMessage.RoomAction.Removed).jsonStr());
   }
 }

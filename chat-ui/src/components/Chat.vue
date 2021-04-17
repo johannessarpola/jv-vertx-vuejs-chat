@@ -1,4 +1,3 @@
-
 <template>
   <div class="vue-chat">
     <header class>
@@ -47,11 +46,13 @@
   min-width: 420px;
 }
 </style>
+
 <script>
-import moment from "moment";
 import MessagesList from "./MessagesList";
 import TextInput from "./TextInput";
 import { scroll } from "quasar";
+import { newChatMessage, newAssignedIdMessage, newUserJoinedMessage } from "../util/Messages.js";
+
 const { getScrollHeight, getScrollTarget, setScrollPosition } = scroll;
 
 export default {
@@ -117,73 +118,53 @@ export default {
       this.socket = socket;
     },
     messageHandler(event) {
-      console.log(event);
       const message = JSON.parse(event.data);
+      console.log(event);
 
       switch (message.type) {
         case "chat":
           console.log(`${message.senderId}-${message.senderDisplayName}: ${message.message}`);
-          this.receiveMessage(message);
+          this.chatMessage(message);
           break;
         case "assigned_id":
           console.log(`Got assigned ID: ${message.id}: ${message.displayName}`);
-          this.assignedId(message);
+          this.chatAssignedId(message);
           break;
         case "user_joined":
-          this.welcome(message);
           console.log(`New user joined room with id ${message.id}`);
+          this.chatUserJoined(message);
           break;
       }
     },
-    assignedId(m) {
-      console.log("assignedId");
+    chatAssignedId(m) {
       this.authorId = m.id;
       this.displayName = m.displayName;
+      const message = newAssignedIdMessage(m.id, m.displayName)
+      this.pushToFeed(message);
     },
-    welcome(m) {
-      console.log("welcome");
-      const message = {
-        id: "Server",
-        contents: `New user joined room with ID: ${m.id}`,
-        date: moment().format("HH:mm:ss")
-      };
+    chatUserJoined(m) {
+      const message = newUserJoinedMessage(m.id, m.displayName)
       this.pushToFeed(message);
     },
     pushToFeed(element) {
       this.feed.push(element);
     },
-    receiveMessage(message) {
-      const newMesssage = {
-        id: message.senderId,
-        displayName: message.senderDisplayName,
-        contents: message.message,
-        date: moment().format("HH:mm:ss")
-      };
-
+    chatMessage(message) {
+      const newMesssage = newChatMessage(message.senderId, message.senderDisplayName, message.message);
       this.pushToFeed(newMesssage);
     },
     open(ev) {
-      console.log("open");
       this.connectToSocket();
     },
     close(ev) {
-      console.log("clear");
       this.socket.close();
       this.feed = [];
     },
     onNewOwnMessage(message) {
-      const newOwnMessage = {
-        id: this.authorId,
-        displayName: this.displayName,
-        contents: message,
-        date: moment().format("HH:mm:ss")
-      };
-
-      const json = JSON.stringify(newOwnMessage);
-      console.log("onNewOwnMessage");
-      console.log(json);
+      const newMesssage = newChatMessage(this.authorId, this.displayName, message);
+      const json = JSON.stringify(newMesssage);
       this.socket.send(json);
-      this.pushToFeed(newOwnMessage);
+      this.pushToFeed(newMesssage);
     }
   }
 };

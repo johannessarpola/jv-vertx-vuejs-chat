@@ -61,13 +61,9 @@ public class AppVerticle extends AbstractVerticle {
         startPromise.fail(ar.cause());
       } else {
         JsonObject config = ar.result();
-
         String env = config.getString("ENV");
-        System.out.println(config.encodePrettily());
-
 
         Integer port = config.getInteger("HTTP_PORT");
-        System.out.println("PORT !!!! " + port);
         Router router = Router.router(vertx);
         vertx.createHttpServer().requestHandler(router).listen(port, http -> {
           logger.info("HTTP server started on port "+port);
