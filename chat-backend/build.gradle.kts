@@ -32,8 +32,8 @@ group = "fi.johannes.bilot"
 version = "0.1-SNAPSHOT"
 
 java {
-    setSourceCompatibility(org.gradle.api.JavaVersion.VERSION_11)
-    setTargetCompatibility(org.gradle.api.JavaVersion.VERSION_11)
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 dependencies {
