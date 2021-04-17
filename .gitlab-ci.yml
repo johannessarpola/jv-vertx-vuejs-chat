@@ -4,7 +4,7 @@ stages:
   - test
 
 chat-backend-build:
-  image: gradle:6.7.1-jre11
+  image: gradle:6.7.1-jdk11
 #  caches:
 #    - gradle
   stage: build
