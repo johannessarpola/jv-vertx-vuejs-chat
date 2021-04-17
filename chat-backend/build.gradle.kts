@@ -1,3 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+
 plugins {
     java
     application
@@ -6,6 +9,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 
@@ -20,15 +24,16 @@ sourceSets.getByName("main") {
 }
 
 application {
-    mainClassName = "io.vertx.core.Launcher"
+    mainClassName = "fi.johannes.vertx.CustomLauncher"
 }
 
-val mainVerticleName = "fi.johannes.vertx.MainVerticle"
+val launcherClassName = "fi.johannes.vertx.CustomLauncher"
+val mainVerticleName = "fi.johannes.vertx.AppVerticle"
 val watchForChange = "src/**/*"
 val doOnChange = "./gradlew classes"
 
-setGroup("fi.johannes.bilot")
-setVersion("0.1-SNAPSHOT")
+group = "fi.johannes.bilot"
+version = "0.1-SNAPSHOT"
 
 java {
     setSourceCompatibility(org.gradle.api.JavaVersion.VERSION_11)
@@ -61,17 +66,27 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.12")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.12")
 }
-tasks {
-    withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-        getArchiveClassifier()
-        manifest {
-            attributes["Main-Verticle"] = mainVerticleName
-        }
-        mergeServiceFiles()
-    }
 
-    test {
-        useJUnitPlatform()
+tasks.withType<ShadowJar> {
+    archiveClassifier.set("fat")
+    manifest {
+        attributes(mapOf("Main-Verticle" to mainVerticleName))
     }
+    mergeServiceFiles()
+}
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        events = setOf(PASSED, SKIPPED, FAILED)
+    }
+}
+
+
+tasks.withType<JavaExec> {
+    args = listOf("run", mainVerticleName,
+        "--redeploy=$watchForChange",
+        "--launcher-class=$launcherClassName",
+        "--on-redeploy=$doOnChange",
+        "--java-opts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005")
 }
